@@ -1,12 +1,13 @@
 from flask import request, jsonify
 from app.service.user_service import UserService
 from flask import Blueprint
+from flask_login import current_user, login_user
 
-signup = Blueprint("signup", __name__)
+login = Blueprint("login", __name__)
 
 
-@signup.route("/", methods=['POST'])
-def register():
+@login.route("/", methods=['POST', 'GET'])
+def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -14,6 +15,8 @@ def register():
     if not email or not password:
         return jsonify({"error": "Email and password are required"}), 400
 
-    response, status = UserService.create_user(email, password)
+    user = check_email_and_password(email, password)
+
+    print(user)
 
     return jsonify(response), status

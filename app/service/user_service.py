@@ -15,3 +15,13 @@ class UserService:
         db.session.commit()
 
         return {"message": "User registered successfully!"}, 201
+
+    @staticmethod
+    def check_email_and_password(email, password):
+
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            return {"error": "Email doesn't exist"}, 404
+
+        # isPasswordSimilar =
