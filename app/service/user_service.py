@@ -24,4 +24,3 @@ class UserService:
         if user:
             return {"error": "Email doesn't exist"}, 404
 
-        # isPasswordSimilar =

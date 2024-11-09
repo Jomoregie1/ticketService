@@ -1,15 +1,11 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from app.models.userModel import User
+from app.models.userModel import User, db
 from config import Config
-
-db = SQLAlchemy()
 
 
 def create_app():
-
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -25,8 +21,10 @@ def create_app():
         return User.query.filter(User.id == int(user_id)).first()
 
     from app.controllers.register_controller import signup
-    from app.controllers.login_controller import login
+    from app.controllers.login_controller import login_bp
+    from app.controllers.home_controller import home_blueprint
     app.register_blueprint(signup, url_prefix='/signup')
-    app.register_blueprint(login, url_prefix='/login')
+    app.register_blueprint(login_bp, url_prefix='/login')
+    app.register_blueprint(home_blueprint, url_prefix='/home')
 
     return app
