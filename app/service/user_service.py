@@ -1,4 +1,4 @@
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models.userModel import User
 
@@ -21,6 +21,11 @@ class UserService:
 
         user = User.query.filter_by(email=email).first()
 
-        if user:
-            return {"error": "Email doesn't exist"}, 404
+        if not user:
+            return None
+
+        if not check_password_hash(user.password, password):
+            return None
+
+        return user
 
