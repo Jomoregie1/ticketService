@@ -1,8 +1,8 @@
-from flask import request, jsonify, render_template, flash, redirect, url_for
+from flask import request, render_template, flash, redirect, url_for
 from app.service.user_service import UserService
 from app.forms.LoginForm import LoginForm
 from flask import Blueprint
-from flask_login import current_user, login_user
+from flask_login import login_user
 
 login_bp = Blueprint("login", __name__)
 
