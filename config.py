@@ -1,10 +1,16 @@
 import os
-from dotenv import load_dotenv
+from mysql.connector import pooling
 
-load_dotenv()
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="my_pool",
+    pool_size=5,
+    pool_reset_session=True,
+    host=os.getenv('HOST', '127.0.0.1'),
+    user=os.getenv('USER', 'root'),
+    password=os.getenv('PASSWORD', 'root'),
+    database=os.getenv('DATABASE', 'ticketservice'),
+    port=int(os.getenv('PORT', 3306))  # Explicitly set port with default to 3306
+)
 
-
-class Config:
-    SQLALCHEMY_DATABASE_URI = f"mysql://{os.getenv('USER')}:{os.getenv('PASSWORD')}@{os.getenv('HOST')}/{os.getenv('DATABASE')}"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = "af2b96329009b67d3818660fde82a0d6"
+def get_db_connection():
+    return connection_pool.get_connection()

@@ -18,14 +18,20 @@ def login():
         email = form.email.data
         password = form.password.data
 
-        user = UserService.check_email_and_password(email, password)
+        # Check email and password using UserService
+        try:
+            user = UserService.check_email_and_password(email, password)
 
-        if user:
-            login_user(user)
-            flash("Logged in successfully!", "success")
-            return redirect(url_for("home.home"))
-        else:
-            flash("Invalid email or password", "danger")
+            if user:
+                # Log the user in
+                login_user(user)
+                flash("Logged in successfully!", "success")
+                return redirect(url_for("home.home"))
+            else:
+                flash("Invalid email or password", "danger")
+        except Exception as e:
+            # Handle unexpected errors gracefully
+            flash(f"An error occurred during login: {e}", "danger")
 
     else:
         flash("Please correct the errors in the form.", "danger")
