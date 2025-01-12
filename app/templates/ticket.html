@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a Ticket</title>
+</head>
+<body>
+    <h1>Create a New Ticket</h1>
+    <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div>
+        {{ form.description.label }}
+        {{ form.description(class="form-control") }}
+        {% for error in form.description.errors %}
+            <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{ form.status.label }}
+        {{ form.status(class="form-control") }}
+        {% for error in form.status.errors %}
+            <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{ form.itemid.label }}
+        {{ form.itemid(class="form-control") }}
+        {% for error in form.itemid.errors %}
+            <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+
+    <button type="submit">{{ form.submit.label }}</button>
+</form>
+</body>
+</html>
