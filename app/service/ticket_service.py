@@ -12,7 +12,7 @@ class TicketService:
             cursor = conn.cursor()
 
             # Validate itemID
-            item_query = "SELECT id FROM items WHERE id = %s"
+            item_query = "SELECT itemid FROM item WHERE itemid = %s"
             cursor.execute(item_query, (itemid,))
             if cursor.fetchone() is None:
                 return {"error": "Invalid itemID. Item does not exist."}, 400

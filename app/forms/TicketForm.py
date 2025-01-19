@@ -21,7 +21,8 @@ class TicketForm(FlaskForm):
 
     itemid = SelectField(
         "Item",
-        coerce=int,  # Ensure item IDs are integers
+        choices=[],
+        coerce=int,
         validators=[DataRequired(message="Please select an item.")]
     )
 
