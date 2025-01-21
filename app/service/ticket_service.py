@@ -18,7 +18,7 @@ class TicketService:
                 return {"error": "Invalid itemID. Item does not exist."}, 400
 
             query = """
-                INSERT INTO ticket (description, timestamp, status, userid, itemid)
+                INSERT INTO ticket (description, date, status, userid, itemid)
                 VALUES (%s, NOW(), %s, %s, %s)
             """
             cursor.execute(query, (description, status, userid, itemid))
@@ -39,7 +39,7 @@ class TicketService:
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT * FROM ticket WHERE userid = %s ORDER BY timestamp DESC"
+            query = "SELECT * FROM ticket WHERE userid = %s ORDER BY date DESC"
             cursor.execute(query, (userid,))
             tickets = cursor.fetchall()
             return tickets
