@@ -29,71 +29,66 @@
                 <span class="tooltip">Logout</span>
             </li>
             <li>
-                <a href="http://127.0.0.1:5000/login/">
+                <a href="http://127.0.0.1:5000/ticket/create">
                     <i class="bx bx-book-add"></i>
                     <span class="nav-item">Create ticket</span>
                 </a>
                 <span class="tooltip">Create</span>
             </li>
             <li>
-                <a href="http://127.0.0.1:5000/login/">
+                <a href="http://127.0.0.1:5000/ticket">
                     <i class="bx bx-edit"></i>
                     <span class="nav-item">Edit tickets</span>
                 </a>
                 <span class="tooltip">Edit</span>
             </li>
-            <li>
-                <a href="http://127.0.0.1:5000/login/">
-                    <i class="bx bx-show-alt"></i>
-                    <span class="nav-item">view status</span>
-                </a>
-                <span class="tooltip">view</span>
-            </li>
-            <li>
-                <a href="http://127.0.0.1:5000/login/">
-                    <i class="bx bx-message-x"></i>
-                    <span class="nav-item">Delete ticket</span>
-                </a>
-                <span class="tooltip">Delete</span>
-            </li>
+
 
         </ul>
     </div>
 
-   <div class="main-content">
-    <div class="container">
-        <h1>Welcome to the store</h1>
-        <p>Manage your tickets effectively with the options below:</p>
-        <div class="card-container">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/Create ticket.jpg') }}" alt="Create Ticket">
+    <div class="main-content">
+    <div class="welcome-section">
+        <h1>Welcome to the Repair Shop</h1>
+        <p>Your one-stop destination for all your repair needs. Manage tickets, track progress, and get the best repair solutions with ease!</p>
+    </div>
 
-                <div class="card-overlay">
-                    <button class="btn">Create Ticket</button>
-                </div>
-            </div>
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/files.jpg') }}" alt="View Ticket">
-                <div class="card-overlay">
-                    <button class="btn">View Tickets</button>
-                </div>
-            </div>
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/edit.jpg') }}" alt="Edit">
-
-                <div class="card-overlay">
-                    <button class="btn">Edit Tickets</button>
-                </div>
-            </div>
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/delete.jpg') }}" alt="Delete">
-
-                <div class="card-overlay">
-                    <button class="btn">Delete Tickets</button>
-                </div>
+    <div class="about-store">
+        <h2>About the Repair Shop</h2>
+        <div class="about-content">
+            <i class="bx bx-wrench about-icon"></i>
+            <div class="about-text">
+                <p>We specialize in providing efficient and reliable repair solutions. Our platform is designed to streamline your repair experience, making it simple and effective. Whether it's creating tickets or tracking repairs, we've got you covered!</p>
+                <p>Thank you for trusting us to handle your repair needs.</p>
             </div>
         </div>
     </div>
+
+    <div class="features-section">
+        <h2>Our Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="bx bx-book-add feature-icon"></i>
+                <h3>Create Tickets</h3>
+                <p>Easily create and manage repair tickets with just a few clicks.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bx bx-show-alt feature-icon"></i>
+                <h3>Track Status</h3>
+                <p>Stay updated on the progress of your repair requests in real-time.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bx bx-message-x feature-icon"></i>
+                <h3>Delete Tickets</h3>
+                <p>Remove tickets that are no longer needed with a simple action.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 </div>
 
 

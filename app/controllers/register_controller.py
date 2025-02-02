@@ -12,8 +12,8 @@ def register():
     # Redirect if user is already authenticated
     if current_user.is_authenticated:
         flash("You are already registered.", "info")
-        return redirect(url_for("home.home"))
 
+    redirect(url_for("signup.register"))
     form = RegisterForm()
     if form.validate_on_submit():
         # Use UserService to create the user

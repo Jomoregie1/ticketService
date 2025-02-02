@@ -29,6 +29,7 @@ def login():
                 return redirect(url_for("home.home"))
             else:
                 flash("Invalid email or password", "danger")
+
         except Exception as e:
             # Handle unexpected errors gracefully
             flash(f"An error occurred during login: {e}", "danger")
