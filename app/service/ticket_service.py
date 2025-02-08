@@ -48,3 +48,59 @@ class TicketService:
         finally:
             cursor.close()
             conn.close()
+
+    @staticmethod
+    def get_ticket_by_id(ticket_id, userid):
+        """
+        Fetch a single ticket by ID and ensure it belongs to the logged-in user.
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT * FROM tickets WHERE ticketid = %s AND userid = %s"
+            cursor.execute(query, (ticket_id, userid))
+            ticket = cursor.fetchone()
+            return ticket
+        except Exception as e:
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def delete_ticket(ticket_id, userid):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            query = "DELETE FROM ticket WHERE ticketid = %s AND userid = %s"
+            cursor.execute(query, (ticket_id, userid))
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                return {"message": "Ticket deleted successfully"}, 200
+            else:
+                return {"error": "Ticket not found or unauthorized"}, 404
+        except Exception as e:
+            return {"error": str(e)}, 500
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def update_ticket(ticket_id, userid, description, itemid):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            query = "UPDATE ticket SET description = %s, itemid = %s WHERE ticketid = %s AND userid = %s"
+            cursor.execute(query, (description, itemid, ticket_id, userid))
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                return {"message": "Ticket updated successfully"}, 200
+            else:
+                return {"error": "Ticket not found or unauthorized"}, 404
+        except Exception as e:
+            return {"error": str(e)}, 500
+        finally:
+            cursor.close()
+            conn.close()

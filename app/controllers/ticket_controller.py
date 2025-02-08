@@ -13,7 +13,6 @@ ticket_bp = Blueprint("ticket", __name__)
 @ticket_bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create_ticket_page():
-
     form = TicketForm()  # Instantiate the form
 
     # Fetch items dynamically for the dropdown
@@ -47,6 +46,48 @@ def create_ticket_page():
     return render_template("createTicket.html", form=form)
 
 
+@ticket_bp.route("/delete/<int:ticket_id>", methods=["POST"])
+@login_required
+def delete_ticket(ticket_id):
+    userid = current_user.id
+    response, status_code = TicketService.delete_ticket(ticket_id, userid)
+
+    return jsonify(response), status_code
+
+
+@ticket_bp.route("/update/<int:ticket_id>", methods=["POST"])
+@login_required
+def update_ticket(ticket_id):
+    print("Received request method:", request.method)
+    userid = current_user.id
+    ticket = TicketService.get_ticket_by_id(ticket_id, userid)
+
+    if not ticket:
+        flash("Ticket not found or unauthorized", "danger")
+        return redirect(url_for("ticket.ticket_page"))
+
+    # Fetch all available items for the dropdown
+    try:
+        items = ItemService.get_all_items()
+        print("Available items:", items)  # Debugging
+    except Exception as e:
+        items = []
+        print("Error fetching items:", e)  # Debugging
+
+    if request.method == "POST":
+        description = request.form.get("description")
+        itemid = request.form.get("itemid")
+
+        if not description or not itemid:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        response, status_code = TicketService.update_ticket(ticket_id, userid, description, itemid)
+        return jsonify(response), status_code  # Return response for AJAX
+
+    # If GET request, render the edit form with available items
+    return render_template("update_ticket.html", ticket=ticket, items=items)
+
+
 @ticket_bp.route("/", methods=["GET"])
 @login_required
 def ticket_page():
@@ -55,4 +96,15 @@ def ticket_page():
     """
     userid = current_user.id
     tickets = TicketService.get_tickets_by_user(userid)
-    return render_template("viewTicket.html", tickets=tickets)
+
+    # Fetch available items for dropdown
+    try:
+        items = ItemService.get_all_items()
+        if items is None:
+            items = []  # Ensure items is never None
+        print("Available items:", items)  # Debugging output
+    except Exception as e:
+        items = []
+        print("Error fetching items:", e)  # Debugging output
+
+    return render_template("viewTicket.html", tickets=tickets, items=items)
