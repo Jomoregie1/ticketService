@@ -57,7 +57,7 @@ class TicketService:
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT * FROM tickets WHERE ticketid = %s AND userid = %s"
+            query = "SELECT * FROM ticket WHERE ticketid = %s AND userid = %s"
             cursor.execute(query, (ticket_id, userid))
             ticket = cursor.fetchone()
             return ticket

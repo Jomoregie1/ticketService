@@ -58,34 +58,32 @@ def delete_ticket(ticket_id):
 @ticket_bp.route("/update/<int:ticket_id>", methods=["POST"])
 @login_required
 def update_ticket(ticket_id):
-    print("Received request method:", request.method)
+
+    if not current_user.is_authenticated:
+        return jsonify({"error": "Unauthorized. Please log in."}), 401
+
     userid = current_user.id
+
     ticket = TicketService.get_ticket_by_id(ticket_id, userid)
 
     if not ticket:
-        flash("Ticket not found or unauthorized", "danger")
-        return redirect(url_for("ticket.ticket_page"))
+        return jsonify({"error": "Ticket not found or unauthorized"}), 404
 
-    # Fetch all available items for the dropdown
-    try:
-        items = ItemService.get_all_items()
-        print("Available items:", items)  # Debugging
-    except Exception as e:
-        items = []
-        print("Error fetching items:", e)  # Debugging
+    data = request.get_json()
 
-    if request.method == "POST":
-        description = request.form.get("description")
-        itemid = request.form.get("itemid")
+    if not data:
+        return jsonify({"error": "No JSON data received"}), 400
 
-        if not description or not itemid:
-            return jsonify({"error": "Missing required fields"}), 400
+    description = data.get("description")
+    itemid = data.get("itemid")
 
-        response, status_code = TicketService.update_ticket(ticket_id, userid, description, itemid)
-        return jsonify(response), status_code  # Return response for AJAX
+    if not description or not itemid:
+        return jsonify({"error": "Missing required fields"}), 400
 
-    # If GET request, render the edit form with available items
-    return render_template("update_ticket.html", ticket=ticket, items=items)
+    response, status_code = TicketService.update_ticket(ticket_id, userid, description, itemid)
+
+    print("Update Response:", response, "Status Code:", status_code)
+    return jsonify(response), status_code
 
 
 @ticket_bp.route("/", methods=["GET"])
