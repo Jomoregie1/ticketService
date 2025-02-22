@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Manage Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-style.css') }}">
+</head>
+<body>
+
+    <h1>All Users</h1>
+
+    {% if users %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Superuser</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr id="user-row-{{ user.id }}">
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <select class="superuser-dropdown" data-userid="{{ user.id }}">
+                                <option value="0" {% if not user.is_superuser %}selected{% endif %}>No</option>
+                                <option value="1" {% if user.is_superuser %}selected{% endif %}>Yes</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-user-btn" data-userid="{{ user.id }}">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".superuser-dropdown").change(function () {
+                let userId = $(this).data("userid");
+                let newStatus = $(this).val();
+
+                $.ajax({
+                    url: "/admin/user/update/" + userId,
+                    type: "POST",
+                    data: JSON.stringify({ is_superuser: newStatus }),
+                    contentType: "application/json",
+                    success: function (response) {
+                        alert("User updated successfully!");
+                    },
+                    error: function (xhr) {
+                        alert("Error updating user.");
+                    }
+                });
+            });
+
+            $(".delete-user-btn").click(function () {
+                let userId = $(this).data("userid");
+
+                if (confirm("Are you sure you want to delete this user?")) {
+                    $.ajax({
+                        url: "/admin/user/delete/" + userId,
+                        type: "POST",
+                        success: function (response) {
+                            alert("User deleted successfully!");
+                            $("#user-row-" + userId).remove();
+                        },
+                        error: function (xhr) {
+                            alert("Error deleting user.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

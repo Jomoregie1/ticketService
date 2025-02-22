@@ -5,13 +5,17 @@ from config import get_db_connection
 
 
 class User(UserMixin):
-    def __init__(self, id, email, password):
+    def __init__(self, id, email, password, is_superuser=False):
         self.id = id
         self.email = email
         self.password = password
+        self.is_superuser = is_superuser
 
     def __repr__(self):
         return f"User('{self.email}')"
+
+    def is_authenticated(self):
+        return True
 
     @staticmethod
     def create(email, password):

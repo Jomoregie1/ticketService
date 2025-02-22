@@ -12,118 +12,117 @@
 </head>
 <body>
 
-    <div class="tickets-container">
-        <h1>Your Tickets</h1>
+<div class="tickets-container">
+    <h1>Your Tickets</h1>
 
-        {% if tickets %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Description</th>
-                        <th>Date Created</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ticket in tickets %}
-                        <tr id="ticket-row-{{ ticket.ticketid }}">
-                            <td>{{ ticket.ticketid }}</td>
-                            <td>{{ ticket.description }}</td>
-                            <td>
-                                {% if ticket.date %}
-                                    {{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') }}
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            </td>
-                            <td>{{ 'Completed' if ticket.status else 'Pending' }}</td>
-                            <td>
-                                <!-- Edit Button -->
-                                <button class="btn btn-primary btn-sm edit-btn"
-                                    data-ticketid="{{ ticket.ticketid }}"
-                                    data-description="{{ ticket.description }}"
-                                    data-itemid="{{ ticket.itemid }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal">
-                                    <i class='bx bx-pencil'></i>
-                                </button>
+    {% if tickets %}
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Date Created</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ticket in tickets %}
+        <tr id="ticket-row-{{ ticket.ticketid }}">
+            <td>{{ ticket.ticketid }}</td>
+            <td>{{ ticket.description }}</td>
+            <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
+            <td>{{ 'Completed' if ticket.status else 'Pending' }}</td>
+            {% if is_superuser %}
+            <td>{{ ticket.user_email }}</td>
+            {% endif %}
 
-                                <!-- Delete Button -->
-                                <button class="btn btn-danger btn-sm delete-btn" data-ticketid="{{ ticket.ticketid }}">
-                                    <i class='bx bx-trash'></i>
-                                </button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No tickets found.</p>
-        {% endif %}
-    </div>
+            <td>
+                {% if is_superuser or ticket.userid == current_user.id %}
+                <button class="btn btn-primary btn-sm edit-btn"
+                        data-ticketid="{{ ticket.ticketid }}"
+                        data-description="{{ ticket.description }}"
+                        data-itemid="{{ ticket.itemid }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editModal">
+                    <i class='bx bx-pencil'></i> Edit
+                </button>
 
-    <!-- Edit Ticket Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Ticket</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="edit-ticket-form" method="POST">
-                        <input type="hidden" id="edit-ticket-id">
-                        <div class="mb-3">
-                            <label for="edit-description" class="form-label">Description</label>
-                            <textarea class="form-control" id="edit-description" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-itemid" class="form-label">Item</label>
-                            <select class="form-control" id="edit-itemid">
-                                {% for item in items %}
-                                <option value="{{ item.id }}">{{ item.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-success">Update</button>
-                    </form>
-                </div>
+                <button class="btn btn-danger btn-sm delete-btn" data-ticketid="{{ ticket.ticketid }}">
+                    <i class='bx bx-trash'></i> Delete
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+    {% else %}
+    <p>No tickets found.</p>
+    {% endif %}
+</div>
+
+<!-- Edit Ticket Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-ticket-form" method="POST">
+                    <input type="hidden" id="edit-ticket-id">
+                    <div class="mb-3">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-itemid" class="form-label">Item</label>
+                        <select class="form-control" id="edit-itemid">
+                            {% for item in items %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="sidebar">
-        <div class="top">
-            <div class="logo">
-                <i class="bx bx-wrench"></i>
-                <span>Repair Shop</span>
-            </div>
-            <i class="bx bx-menu" id="sidebarBtn"></i>
+<div class="sidebar">
+    <div class="top">
+        <div class="logo">
+            <i class="bx bx-wrench"></i>
+            <span>Repair Shop</span>
         </div>
-        <div class="user">
-            <p class="bold">Email</p>
-        </div>
-        <ul>
-            <li>
-                <a href="{{ url_for('login.login') }}">
-                    <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
-                </a>
-                <span class="tooltip">Logout</span>
-            </li>
-            <li>
-                <a href="{{ url_for('home.home') }}">
-                    <i class="bx bx-home-alt-2"></i>
-                    <span class="nav-item">Home Page</span>
-                </a>
-                <span class="tooltip">Home Page</span>
-            </li>
-        </ul>
+        <i class="bx bx-menu" id="sidebarBtn"></i>
     </div>
+    <div class="user">
+        <p class="bold">Email</p>
+    </div>
+    <ul>
+        <li>
+            <a href="{{ url_for('login.login') }}">
+                <i class="bx bx-log-out"></i>
+                <span class="nav-item">Logout</span>
+            </a>
+            <span class="tooltip">Logout</span>
+        </li>
+        <li>
+            <a href="{{ url_for('home.home') }}">
+                <i class="bx bx-home-alt-2"></i>
+                <span class="nav-item">Home Page</span>
+            </a>
+            <span class="tooltip">Home Page</span>
+        </li>
+    </ul>
+</div>
 
-   <script>
+<script>
     $(document).ready(function () {
         let items = {% if items %} {{ items | tojson | safe }} {% else %} [] {% endif %};
 
@@ -149,7 +148,7 @@
         });
 
         $("#edit-ticket-form").submit(function (e) {
-            e.preventDefault(); // ✅ Prevent default form submission
+            e.preventDefault();
             console.log("Prevented default form submission");
 
             let ticketId = $("#edit-ticket-id").val();
@@ -161,8 +160,8 @@
             $.ajax({
                 url: "/ticket/update/" + ticketId,
                 type: "POST",
-                data: JSON.stringify({ description: description, itemid: itemid }), // ✅ Send as JSON
-                contentType: "application/json",  // ✅ Ensure correct request format
+                data: JSON.stringify({ description: description, itemid: itemid }),
+                contentType: "application/json",
                 success: function (response) {
                     console.log("Ticket updated successfully!", response);
                     alert("Ticket updated successfully!");
@@ -203,6 +202,7 @@
             sidebar.classList.toggle('active');
         };
     });
+
 </script>
 
 

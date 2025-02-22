@@ -32,6 +32,50 @@ class TicketService:
             conn.close()
 
     @staticmethod
+    def get_all_tickets():
+        """Retrieve all tickets from the database (Superuser only)."""
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+        SELECT ticket.ticketid, ticket.description, ticket.date, ticket.status, 
+               user.email AS user_email, ticket.itemid
+        FROM ticket
+        JOIN user ON ticket.userid = user.id
+        """
+        cursor.execute(query)
+        tickets = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        return tickets
+
+    @staticmethod
+    def update_ticket_status(ticket_id, new_status):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = "UPDATE ticket SET status = %s WHERE ticketid = %s"
+        cursor.execute(query, (new_status, ticket_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"message": "Ticket status updated successfully!"}, 200
+
+    @staticmethod
+    def add_manufacturer(name):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            query = "INSERT INTO manufacturers (name) VALUES (%s)"
+            cursor.execute(query, (name,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return {"message": "Manufacturer added successfully"}, 201
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+    @staticmethod
     def get_tickets_by_user(userid):
         """
         Retrieve all tickets for a specific user from the database.
@@ -87,6 +131,31 @@ class TicketService:
             conn.close()
 
     @staticmethod
+    def delete_ticket_superuser(ticket_id, userid=None, is_superuser=False):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            if is_superuser:
+                query = "DELETE FROM ticket WHERE ticketid = %s"
+                cursor.execute(query, (ticket_id,))
+            else:
+                query = "DELETE FROM ticket WHERE ticketid = %s AND userid = %s"
+                cursor.execute(query, (ticket_id, userid))
+
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                return {"message": "Ticket deleted successfully"}, 200
+            else:
+                return {"error": "Ticket not found or unauthorized"}, 404
+        except Exception as e:
+            return {"error": str(e)}, 500
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
     def update_ticket(ticket_id, userid, description, itemid):
         try:
             conn = get_db_connection()
@@ -104,3 +173,17 @@ class TicketService:
         finally:
             cursor.close()
             conn.close()
+
+    @staticmethod
+    def get_all_manufacturers():
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT * FROM manufacturer"
+            cursor.execute(query)
+            manufacturers = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return manufacturers
+        except Exception as e:
+            return []

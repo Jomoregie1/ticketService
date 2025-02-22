@@ -93,7 +93,10 @@ def ticket_page():
     Render a page listing all tickets for the current user.
     """
     userid = current_user.id
-    tickets = TicketService.get_tickets_by_user(userid)
+    if current_user.is_superuser:
+        tickets = TicketService.get_all_tickets()
+    else:
+        tickets = TicketService.get_tickets_by_user(userid)
 
     # Fetch available items for dropdown
     try:

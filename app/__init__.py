@@ -28,12 +28,14 @@ def create_app():
         cursor = conn.cursor(dictionary=True)
         query = "SELECT * FROM user WHERE id = %s"
         cursor.execute(query, (user_id,))
-        user = cursor.fetchone()
+        user_data = cursor.fetchone()
         cursor.close()
         conn.close()
-        if user:
-            # Return an instance of the User class
-            return User(user["id"], user["email"], user["password"])
+
+        if user_data:
+            return User(user_data["id"], user_data["email"], user_data["password"],
+                        user_data.get("is_superuser", False))
+
         return None
 
     # Blueprint imports
@@ -41,11 +43,13 @@ def create_app():
     from app.controllers.login_controller import login_bp
     from app.controllers.home_controller import home_blueprint
     from app.controllers.ticket_controller import ticket_bp
+    from app.controllers.admin_controller import admin_bp
 
     # Register blueprints
     app.register_blueprint(signup, url_prefix='/signup')
     app.register_blueprint(login_bp, url_prefix='/login')
     app.register_blueprint(home_blueprint, url_prefix='/home')
     app.register_blueprint(ticket_bp, url_prefix="/ticket")
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     return app

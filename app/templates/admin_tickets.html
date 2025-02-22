@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Manage Tickets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-style.css') }}">
+</head>
+<body>
+
+    <h1>All Tickets</h1>
+
+    {% if tickets %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Date Created</th>
+                    <th>Status</th>
+                    <th>User Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr id="ticket-row-{{ ticket.ticketid }}">
+                        <td>{{ ticket.ticketid }}</td>
+                        <td>{{ ticket.description }}</td>
+                        <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
+                        <td>
+                            <select class="status-dropdown" data-ticketid="{{ ticket.ticketid }}">
+                                <option value="0" {% if not ticket.status %}selected{% endif %}>Pending</option>
+                                <option value="1" {% if ticket.status %}selected{% endif %}>Completed</option>
+                            </select>
+                        </td>
+                        <td>{{ ticket.user_email }}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-btn" data-ticketid="{{ ticket.ticketid }}">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No tickets found.</p>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".status-dropdown").change(function () {
+                let ticketId = $(this).data("ticketid");
+                let newStatus = $(this).val();
+
+                $.ajax({
+                    url: "/admin/ticket/update/status/" + ticketId,
+                    type: "POST",
+                    data: JSON.stringify({ status: newStatus }),
+                    contentType: "application/json",
+                    success: function (response) {
+                        alert("Ticket status updated successfully!");
+                    },
+                    error: function (xhr) {
+                        alert("Error updating ticket status.");
+                    }
+                });
+            });
+
+            $(".delete-btn").click(function () {
+                let ticketId = $(this).data("ticketid");
+
+                if (confirm("Are you sure you want to delete this ticket?")) {
+                    $.ajax({
+                        url: "/admin/ticket/delete/" + ticketId,
+                        type: "POST",
+                        success: function (response) {
+                            alert("Ticket deleted successfully!");
+                            $("#ticket-row-" + ticketId).remove();
+                        },
+                        error: function (xhr) {
+                            alert("Error deleting ticket.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

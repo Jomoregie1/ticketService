@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Manufacturer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2>Add Manufacturer</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-dismissible fade show">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Manufacturer Form -->
+        <form id="add-manufacturer-form">
+            <div class="mb-3">
+                <label for="manufacturer-name" class="form-label">Manufacturer Name</label>
+                <input type="text" class="form-control" id="manufacturer-name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Manufacturer</button>
+        </form>
+
+        <hr>
+
+        <!-- Display Existing Manufacturers -->
+        <h3>Existing Manufacturers</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody id="manufacturer-list">
+                {% for manufacturer in manufacturers %}
+                    <tr>
+                        <td>{{ manufacturer.id }}</td>
+                        <td>{{ manufacturer.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('admin.view_all_tickets') }}" class="btn btn-secondary">Back to Admin Panel</a>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#add-manufacturer-form").submit(function (e) {
+                e.preventDefault();
+
+                let manufacturerName = $("#manufacturer-name").val();
+
+                $.ajax({
+                    url: "/admin/manufacturer/add",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name: manufacturerName }),
+                    success: function (response) {
+                        alert("Manufacturer added successfully!");
+                        $("#manufacturer-name").val("");  // ✅ Clear input after success
+
+                        // ✅ Append new manufacturer to table dynamically
+                        $("#manufacturer-list").append(
+                            `<tr><td>${response.id}</td><td>${manufacturerName}</td></tr>`
+                        );
+                    },
+                    error: function (xhr) {
+                        alert("Error adding manufacturer: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
