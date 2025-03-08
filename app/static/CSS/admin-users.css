@@ -1,47 +1,67 @@
-/* General body styles */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f8f8;
-  color: #333;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
 }
 
-/* Container for the tickets table to leave room for the sidebar */
-.tickets-container {
-  margin-left: 250px; /* Adjust this value based on your sidebar's width */
-  width: 70%;       /* Make the container narrower so it doesn't span the full width */
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Heading style */
 h1 {
-  text-align: center;
-  margin-bottom: 20px;
+    text-align: center;
+    color: #333;
 }
 
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  margin: 0 auto;
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
+.user-table th, .user-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
-thead {
-  background-color: #f0f0f0;
+.user-table th {
+    background-color: #007BFF;
+    color: white;
 }
 
-tbody tr:nth-child(even) {
-  background-color: #fafafa;
+.superuser-dropdown {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background-color: #c82333;
+}
+
+.no-users {
+    text-align: center;
+    color: #666;
+    font-size: 16px;
 }
 
 
-/* sidebar stuff */
 * {margin:0px;
 padding:0px;
 box-sizing: border-box;

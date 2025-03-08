@@ -5,48 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Manage Tickets</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Manage Tickets</h1>
 
-    <h1>All Tickets</h1>
-
-    {% if tickets %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Description</th>
-                    <th>Date Created</th>
-                    <th>Status</th>
-                    <th>User Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in tickets %}
-                    <tr id="ticket-row-{{ ticket.ticketid }}">
-                        <td>{{ ticket.ticketid }}</td>
-                        <td>{{ ticket.description }}</td>
-                        <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
-                        <td>
-                            <select class="status-dropdown" data-ticketid="{{ ticket.ticketid }}">
-                                <option value="0" {% if not ticket.status %}selected{% endif %}>Pending</option>
-                                <option value="1" {% if ticket.status %}selected{% endif %}>Completed</option>
-                            </select>
-                        </td>
-                        <td>{{ ticket.user_email }}</td>
-                        <td>
-                            <button class="btn btn-danger btn-sm delete-btn" data-ticketid="{{ ticket.ticketid }}">
-                                <i class='bx bx-trash'></i> Delete
-                            </button>
-                        </td>
+        {% if tickets %}
+            <table class="ticket-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>Date Created</th>
+                        <th>Status</th>
+                        <th>User Email</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No tickets found.</p>
-    {% endif %}
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr id="ticket-row-{{ ticket.ticketid }}">
+                            <td>{{ ticket.ticketid }}</td>
+                            <td>{{ ticket.description }}</td>
+                            <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
+                            <td>
+                                <select class="status-dropdown" data-ticketid="{{ ticket.ticketid }}">
+                                    <option value="0" {% if not ticket.status %}selected{% endif %}>Pending</option>
+                                    <option value="1" {% if ticket.status %}selected{% endif %}>Completed</option>
+                                </select>
+                            </td>
+                            <td>{{ ticket.user_email }}</td>
+                            <td>
+                                <button class="btn delete-btn" data-ticketid="{{ ticket.ticketid }}">
+                                    <i class='bx bx-trash'></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-tickets">No tickets found.</p>
+        {% endif %}
+    </div>
+    <div class="sidebar">
+    <div class="top">
+        <div class="logo">
+            <i class="bx bx-wrench"></i>
+            <span>Repair Shop</span>
+        </div>
+        <i class="bx bx-menu" id="sidebarBtn"></i>
+    </div>
+    <div class="user">
+        <p class="bold">Email</p>
+    </div>
+    <ul>
+        <li>
+            <a href="{{ url_for('login.login') }}">
+                <i class="bx bx-log-out"></i>
+                <span class="nav-item">Logout</span>
+            </a>
+            <span class="tooltip">Logout</span>
+        </li>
+        <li>
+            <a href="{{ url_for('home.home') }}">
+                <i class="bx bx-home-alt-2"></i>
+                <span class="nav-item">Home Page</span>
+            </a>
+            <span class="tooltip">Home Page</span>
+        </li>
+    </ul>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -87,7 +117,13 @@
                 }
             });
         });
-    </script>
 
+    let sidebarBtn = document.querySelector('#sidebarBtn');
+    let sidebar = document.querySelector('.sidebar');
+
+    sidebarBtn.onclick = function () {
+        sidebar.classList.toggle('active');
+    };
+    </script>
 </body>
 </html>

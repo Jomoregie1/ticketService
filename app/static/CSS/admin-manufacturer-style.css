@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+    text-align: center;
+    color: #333;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.alert {
+    margin-top: 20px;
+}
+
+#add-manufacturer-form {
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+}
+
+.btn-secondary {
+    margin-top: 15px;
+    display: block;
+    width: 100%;
+}

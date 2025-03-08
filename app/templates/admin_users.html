@@ -4,45 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Manage Users</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-users.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Manage Users</h1>
 
-    <h1>All Users</h1>
-
-    {% if users %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Superuser</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                    <tr id="user-row-{{ user.id }}">
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>
-                            <select class="superuser-dropdown" data-userid="{{ user.id }}">
-                                <option value="0" {% if not user.is_superuser %}selected{% endif %}>No</option>
-                                <option value="1" {% if user.is_superuser %}selected{% endif %}>Yes</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm delete-user-btn" data-userid="{{ user.id }}">
-                                <i class='bx bx-trash'></i> Delete
-                            </button>
-                        </td>
+        {% if users %}
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Superuser</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No users found.</p>
-    {% endif %}
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr id="user-row-{{ user.id }}">
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <select class="superuser-dropdown" data-userid="{{ user.id }}">
+                                    <option value="0" {% if not user.is_superuser %}selected{% endif %}>No</option>
+                                    <option value="1" {% if user.is_superuser %}selected{% endif %}>Yes</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn delete-user-btn" data-userid="{{ user.id }}">
+                                    <i class='bx bx-trash'></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-users">No users found.</p>
+        {% endif %}
+    </div>
+
+    <div class="sidebar">
+    <div class="top">
+        <div class="logo">
+            <i class="bx bx-wrench"></i>
+            <span>Repair Shop</span>
+        </div>
+        <i class="bx bx-menu" id="sidebarBtn"></i>
+    </div>
+    <div class="user">
+        <p class="bold">Email</p>
+    </div>
+    <ul>
+        <li>
+            <a href="{{ url_for('login.login') }}">
+                <i class="bx bx-log-out"></i>
+                <span class="nav-item">Logout</span>
+            </a>
+            <span class="tooltip">Logout</span>
+        </li>
+        <li>
+            <a href="{{ url_for('home.home') }}">
+                <i class="bx bx-home-alt-2"></i>
+                <span class="nav-item">Home Page</span>
+            </a>
+            <span class="tooltip">Home Page</span>
+        </li>
+    </ul>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -83,7 +114,13 @@
                 }
             });
         });
-    </script>
 
+    let sidebarBtn = document.querySelector('#sidebarBtn');
+    let sidebar = document.querySelector('.sidebar');
+
+    sidebarBtn.onclick = function () {
+        sidebar.classList.toggle('active');
+    };
+    </script>
 </body>
 </html>

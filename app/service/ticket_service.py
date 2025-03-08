@@ -33,7 +33,7 @@ class TicketService:
 
     @staticmethod
     def get_all_tickets():
-        """Retrieve all tickets from the database (Superuser only)."""
+        """Retrieve all tickets for admin and sort by date."""
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -46,9 +46,11 @@ class TicketService:
         cursor.execute(query)
         tickets = cursor.fetchall()
 
+        sorted_tickets = TicketService.merge_sort_tickets(tickets, key="date")  # Sort by date
+
         cursor.close()
         conn.close()
-        return tickets
+        return sorted_tickets
 
     @staticmethod
     def update_ticket_status(ticket_id, new_status):
@@ -78,15 +80,17 @@ class TicketService:
     @staticmethod
     def get_tickets_by_user(userid):
         """
-        Retrieve all tickets for a specific user from the database.
+        Retrieve all tickets for a specific user and sort them by date (newest first).
         """
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT * FROM ticket WHERE userid = %s ORDER BY date DESC"
+            query = "SELECT * FROM ticket WHERE userid = %s"
             cursor.execute(query, (userid,))
             tickets = cursor.fetchall()
-            return tickets
+
+            sorted_tickets = TicketService.merge_sort_tickets(tickets, key="date")  # Sort by date
+            return sorted_tickets
         except Exception as e:
             raise Exception(f"An error occurred while retrieving tickets: {e}")
         finally:
@@ -187,3 +191,38 @@ class TicketService:
             return manufacturers
         except Exception as e:
             return []
+
+    @staticmethod
+    def merge_sort_tickets(tickets, key="date"):
+        """
+        Sorts a list of tickets using Merge Sort based on the specified key.
+        Default sorting key is 'date'.
+        """
+        if len(tickets) <= 1:
+            return tickets
+
+        mid = len(tickets) // 2
+        left_half = TicketService.merge_sort_tickets(tickets[:mid], key)
+        right_half = TicketService.merge_sort_tickets(tickets[mid:], key)
+
+        return TicketService.merge(left_half, right_half, key)
+
+    @staticmethod
+    def merge(left, right, key):
+        """Helper function to merge two sorted halves."""
+        sorted_tickets = []
+        i = j = 0
+
+        while i < len(left) and j < len(right):
+            if left[i][key] >= right[j][key]:  # Sort by date descending (latest first)
+                sorted_tickets.append(left[i])
+                i += 1
+            else:
+                sorted_tickets.append(right[j])
+                j += 1
+
+        # Append remaining items
+        sorted_tickets.extend(left[i:])
+        sorted_tickets.extend(right[j:])
+
+        return sorted_tickets
