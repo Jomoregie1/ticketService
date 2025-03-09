@@ -9,7 +9,7 @@ class User(UserMixin):
         self.id = id
         self.email = email
         self.password = password
-        self.is_superuser = is_superuser
+        self.is_superuser = bool(is_superuser)
 
     def __repr__(self):
         return f"User('{self.email}')"
@@ -40,7 +40,7 @@ class User(UserMixin):
         cursor.close()
         conn.close()
         if result:
-            return User(result['id'], result['email'], result['password'])
+            return User(result['id'], result['email'], result['password'], bool(result['is_superuser']))
         return None
 
     @staticmethod
@@ -54,7 +54,7 @@ class User(UserMixin):
         cursor.close()
         conn.close()
         if result:
-            return User(result['id'], result['email'], result['password'])
+            return User(result['id'], result['email'], result['password'], bool(result['is_superuser']))
         return None
 
     def check_password(self, password):

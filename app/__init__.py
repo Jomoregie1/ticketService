@@ -33,8 +33,12 @@ def create_app():
         conn.close()
 
         if user_data:
-            return User(user_data["id"], user_data["email"], user_data["password"],
-                        user_data.get("is_superuser", False))
+            return User(
+                id=user_data["id"],
+                email=user_data["email"],
+                password=user_data["password"],
+                is_superuser=bool(user_data["is_superuser"])
+            )
 
         return None
 

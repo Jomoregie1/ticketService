@@ -17,21 +17,21 @@ def login():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
-
-        # Check email and password using UserService
         try:
             user = UserService.check_email_and_password(email, password)
 
             if user:
-                # Log the user in
                 login_user(user)
                 flash("Logged in successfully!", "success")
+
+                if user.is_superuser:
+                    return redirect(url_for("admin.view_all_tickets"))
+
                 return redirect(url_for("home.home"))
             else:
                 flash("Invalid email or password", "danger")
 
         except Exception as e:
-            # Handle unexpected errors gracefully
             flash(f"An error occurred during login: {e}", "danger")
 
     else:
