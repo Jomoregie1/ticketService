@@ -62,19 +62,19 @@ class UserService:
 
     @staticmethod
     def update_user(user_id, data):
-        """Update user information (email or password)."""
+        """Update user information (email, password, or superuser status)."""
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Ensure the user exists before updating
         cursor.execute("SELECT id FROM user WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         if not user:
             return {"error": "User not found"}, 404
 
-        # Update email and/or password if provided
         email = data.get("email")
         password = data.get("password")
+        is_superuser = data.get("is_superuser")
+
         update_fields = []
         update_values = []
 
@@ -86,6 +86,10 @@ class UserService:
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
             update_fields.append("password = %s")
             update_values.append(hashed_password)
+
+        if is_superuser is not None:
+            update_fields.append("is_superuser = %s")
+            update_values.append(bool(is_superuser))
 
         if not update_fields:
             return {"error": "No valid fields to update"}, 400
