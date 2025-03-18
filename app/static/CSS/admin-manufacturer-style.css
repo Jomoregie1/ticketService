@@ -1,50 +1,259 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
     background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
+    font-family: "Segoe UI", sans-serif;
 }
 
 .container {
-    max-width: 800px;
-    background: white;
+    background: #fff;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: auto;
 }
 
 h2, h3 {
     text-align: center;
-    color: #333;
+    margin-bottom: 20px;
 }
 
-.table {
-    margin-top: 20px;
+/* Form Styling */
+form {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
 }
 
 .btn-primary {
     display: block;
     width: 100%;
-    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
 }
 
-.alert {
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+.table {
     margin-top: 20px;
 }
 
-#add-manufacturer-form {
-    margin-bottom: 20px;
+th {
+    background-color: #007bff;
+    color: white;
 }
 
-input[type="text"] {
-    border: 1px solid #ced4da;
-    border-radius: 5px;
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Flash Messages */
+.alert {
+    text-align: center;
     padding: 10px;
-    width: 100%;
+    border-radius: 5px;
+    font-weight: bold;
 }
 
-.btn-secondary {
-    margin-top: 15px;
-    display: block;
-    width: 100%;
+.alert-dismissible {
+    margin-top: 10px;
+}
+
+/* Sidebar Adjustments */
+.sidebar {
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar ul li a {
+    transition: all 0.3s ease-in-out;
+}
+
+.sidebar ul li a:hover {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Sidebar Toggle */
+.sidebar.active {
+    width: 250px;
+}
+
+.sidebar.active ~ .main-content {
+    margin-left: 250px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .btn-primary {
+        font-size: 14px;
+    }
+}
+
+
+* {margin:0px;
+padding:0px;
+box-sizing: border-box;
+font-family:Segoe UI;
+}
+.sidebar {
+    display: block !important;
+    visibility: visible !important;
+    z-index: 10;
+}
+.sidebar {
+    width: 80px;
+    position: fixed;
+    left: 0;
+    top:0;
+    height:100vh;
+    background-color: #12171e;
+    padding: 0.4rem 0.8rem;
+    transition: all 0.5s ease;
+
+
+}
+
+.sidebar.active ~.main-content{
+    left: 250px;
+    width: calc(100%-250px);
+}
+
+.sidebar.active {
+    width: 250px;
+}
+
+.sidebar #sidebarBtn{
+    position: absolute;
+    color: #ffff;
+    top: .4rem;
+    left: 50%;
+    font-size: 1.2rem;
+    line-height: 50px;
+    transform: translateX(-50%);
+    cursor: pointer;
+}
+
+.sidebar.active #sidebarBtn{
+    left: 90%;
+}
+
+.sidebar .top .logo {
+   color: #ffff;
+   display: flex;
+   height: 50px;
+   width: 100%;
+   align-items: center;
+   pointer-events: none;
+   opacity: 0;
+}
+
+.sidebar.active .top .logo {
+   opacity: 1;
+   }
+
+.top .logo i {
+   font-size: 2rem;
+   margin-right: 5px
+}
+
+.user {
+   display: flex;
+   align-items: center;
+   margin: 1rem 0;
+}
+.user p {
+   color: #ffff;
+   opacity: 1;
+   margin-left: 1rem;
+}
+
+.sidebar p{
+   opacity:0;
+}
+
+.sidebar.active p{
+   opacity:1;
+}
+
+.sidebar ul li {
+   position: relative;
+   list-style-type: none;
+   height: 50px;
+   width: 90%;
+   margin: 0.8rem auto;
+   line-height: 50px;
+}
+
+.sidebar ul li:first-child a:hover {
+    background-color: darkred;
+    color: white;
+}
+
+.sidebar ul li a {
+   color: #fff;
+   display: flex;
+   align-items: center;
+   text-decorations: none;
+   border-radius: 0.8rem;
+
+
+
+.sidebar ul li a:hover {
+   background-color: #fff;
+   color: #12171e;
+   transition: all 0.5s ease;
+}
+
+.sidebar ul li a i {
+   min-width: 30px;
+   text-align: center;
+   height: 50px;
+   border-radius: 12px;
+   line-height: 50px;
+
+}
+
+.sidebar .nav-item {
+   opacity: 0;
+}
+
+.sidebar.active .nav-item {
+   opacity: 1;
+}
+
+.sidebar ul li .tooltip {
+   position: absolute;
+   left: 125px;
+   top: 50%;
+   transform: translate(-50%, -50%) ;
+   box-shadow: 0 0.5rem 0.8rem rgba(0,0,0,0.2);
+   border-radius: .6rem;
+   padding: .4rem 1.2rem;
+   line-height: 1.8;
+   z-index: 20;
+   opacity: 0;
+}
+
+.sidebar ul li:hover .tooltip {
+   opacity: 1;
+   transition: all 0.5s ease;
+}
+
+.sidebar.active ul li .tooltip {
+   display: none;
 }

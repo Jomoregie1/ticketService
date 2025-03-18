@@ -13,9 +13,9 @@ ticket_bp = Blueprint("ticket", __name__)
 @ticket_bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create_ticket_page():
-    form = TicketForm()  # Instantiate the form
+    form = TicketForm()
 
-    # Fetch items dynamically for the dropdown
+    # Fetch items dynamically for dropdown
     try:
         items = ItemService.get_all_items()
         form.itemid.choices = [(item["id"], item["name"]) for item in items]
@@ -23,28 +23,23 @@ def create_ticket_page():
         flash(f"Error fetching items: {e}", "danger")
         form.itemid.choices = []
 
-    if form.validate_on_submit():  # Handles POST request
+    if form.validate_on_submit():
         description = form.description.data
         status = False
         itemid = form.itemid.data
         userid = current_user.id
 
-        # Log data for debugging
-        print(f"Creating ticket with: Description={description}, ItemID={itemid}, UserID={userid}, Status={status}")
-
-        # Call the TicketService to create the ticket
+        # Call TicketService to create ticket with AI detection
         response, status_code = TicketService.create_ticket(description, status, userid, itemid)
 
         if status_code == 201:
-            flash("Ticket created successfully!", "success")
+            flash(f"Ticket created successfully! Detected Issues: {response['detected_issues']}", "success")
             return redirect(url_for("ticket.ticket_page"))
         else:
             flash(response.get("error", "Failed to create ticket. Try again."), "danger")
             return redirect(url_for("ticket.create_ticket_page"))
 
-    # Render the form for GET request or after failed validation
     return render_template("createTicket.html", form=form)
-
 
 @ticket_bp.route("/delete/<int:ticket_id>", methods=["POST"])
 @login_required
@@ -98,14 +93,11 @@ def ticket_page():
     else:
         tickets = TicketService.get_tickets_by_user(userid)
 
-    # Fetch available items for dropdown
     try:
         items = ItemService.get_all_items()
         if items is None:
-            items = []  # Ensure items is never None
-        print("Available items:", items)  # Debugging output
+            items = []
     except Exception as e:
         items = []
-        print("Error fetching items:", e)  # Debugging output
 
     return render_template("viewTicket.html", tickets=tickets, items=items)

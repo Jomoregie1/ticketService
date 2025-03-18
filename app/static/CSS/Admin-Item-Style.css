@@ -1,5 +1,74 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-/* sidebar stuff */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #555;
+}
+
+select, input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+
+
 * {margin:0px;
 padding:0px;
 box-sizing: border-box;
@@ -150,51 +219,3 @@ font-family:Segoe UI;
 .sidebar.active ul li .tooltip {
    display: none;
 }
-
-
-
-/* General body styles */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f8f8;
-  color: #333;
-  padding: 20px;
-}
-
-
-
-/* Container for the tickets table to leave room for the sidebar */
-.tickets-container {
-  margin-left: 250px; /* Adjust this value based on your sidebar's width */
-  width: 70%;       /* Make the container narrower so it doesn't span the full width */
-}
-
-/* Heading style */
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  margin: 0 auto;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-
-thead {
-  background-color: #f0f0f0;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-

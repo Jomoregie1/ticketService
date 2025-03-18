@@ -216,3 +216,16 @@ font-family:Segoe UI;
 .sidebar.active ul li .tooltip {
    display: none;
 }
+
+
+.search-container {
+    margin-bottom: 20px;
+}
+#search-bar {
+    padding: 5px;
+    width: 200px;
+}
+#search-btn {
+    padding: 5px 10px;
+    cursor: pointer;
+}

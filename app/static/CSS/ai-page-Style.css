@@ -1,5 +1,84 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-/* sidebar stuff */
+/* Centered Container */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+/* Form Styling */
+.estimate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Input Fields */
+.input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Textarea Styling */
+textarea.input-field {
+    height: 80px;
+    resize: none;
+}
+
+/* Submit Button */
+.submit-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+/* Estimated Price Box */
+.estimate-box {
+    margin-top: 20px;
+    padding: 10px;
+    background: #e3fcef;
+    border: 1px solid #34c759;
+    border-radius: 5px;
+    color: #34c759;
+    font-weight: bold;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+/* sidebar stuff*/
+
 * {margin:0px;
 padding:0px;
 box-sizing: border-box;
@@ -150,51 +229,3 @@ font-family:Segoe UI;
 .sidebar.active ul li .tooltip {
    display: none;
 }
-
-
-
-/* General body styles */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f8f8;
-  color: #333;
-  padding: 20px;
-}
-
-
-
-/* Container for the tickets table to leave room for the sidebar */
-.tickets-container {
-  margin-left: 250px; /* Adjust this value based on your sidebar's width */
-  width: 70%;       /* Make the container narrower so it doesn't span the full width */
-}
-
-/* Heading style */
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  margin: 0 auto;
-}
-
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-
-thead {
-  background-color: #f0f0f0;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-

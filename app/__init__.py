@@ -4,12 +4,13 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
-
+from flask_mail import Mail
 from app.models.userModel import User
 from config import get_db_connection
 
 # Load environment variables from .env file
 load_dotenv()
+mail = Mail()
 
 
 def create_app():
@@ -17,6 +18,18 @@ def create_app():
 
     # Set secret key from environment variables
     app.secret_key = os.getenv('SECRET_KEY', 'default-secret-key')  # Default fallback
+
+    # ✅ Add Flask-Mail Configuration
+    app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")  # Default to Gmail
+    app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USE_SSL"] = False  # Set to True if using SSL instead of TLS
+    app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")  # Your email
+    app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")  # Your email password
+    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER", app.config["MAIL_USERNAME"])
+
+    mail.init_app(app)  # ✅ Initialize Flask-Mail inside create_app()
+
 
     # Initialize Flask-Login
     login_manager = LoginManager(app)
@@ -48,6 +61,7 @@ def create_app():
     from app.controllers.home_controller import home_blueprint
     from app.controllers.ticket_controller import ticket_bp
     from app.controllers.admin_controller import admin_bp
+    from app.controllers.price_estimate_controller import estimate_bp
 
     # Register blueprints
     app.register_blueprint(signup, url_prefix='/signup')
@@ -55,5 +69,6 @@ def create_app():
     app.register_blueprint(home_blueprint, url_prefix='/home')
     app.register_blueprint(ticket_bp, url_prefix="/ticket")
     app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(estimate_bp, url_prefix="/estimate")
 
     return app

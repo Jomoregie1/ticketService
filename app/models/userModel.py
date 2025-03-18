@@ -2,7 +2,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 from config import get_db_connection
+import hashlib
 
+PRIME = 104729  # Large prime number
+
+def ks5_math_hash(password: str) -> str:
+    """
+    Custom KS5 Maths-based password hashing.
+    - Converts password to ASCII values.
+    - Uses modular exponentiation with a prime number.
+    - Hashes the result with SHA-256 for additional security.
+    """
+    numeric_value = sum(ord(char) ** 2 for char in password) % PRIME  # Modular arithmetic
+    hashed_value = hashlib.sha256(str(numeric_value).encode()).hexdigest()  # Secure hashing
+    print(f"🔍 KS5 Hashing - Input: {password}, Numeric: {numeric_value}, Hash: {hashed_value}")  # ✅ Debugging
+    return hashed_value
 
 class User(UserMixin):
     def __init__(self, id, email, password, is_superuser=False):
@@ -19,8 +33,9 @@ class User(UserMixin):
 
     @staticmethod
     def create(email, password):
-        """Create a new user and store it in the database."""
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        """Create a new user and store it in the database with KS5 hashing."""
+        hashed_password = ks5_math_hash(password)  # Use custom KS5 hashing
+        print(f"✅ Storing hashed password: {hashed_password}") # Debugging
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "INSERT INTO user (email, password) VALUES (%s, %s)"
@@ -58,5 +73,8 @@ class User(UserMixin):
         return None
 
     def check_password(self, password):
-        """Verify the password."""
-        return check_password_hash(self.password, password)
+        """Verify the password using KS5 Maths hashing."""
+        hashed_attempt = ks5_math_hash(password)  # ✅ Hash the input only once
+        print(f"🔍 Expected Hash (DB): {self.password}")  # Debugging
+        print(f"🔍 Attempted Hash (Input): {hashed_attempt}")  # Debugging
+        return hashed_attempt == self.password  # ✅ Compare directly

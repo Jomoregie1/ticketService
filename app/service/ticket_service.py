@@ -1,14 +1,17 @@
 from config import get_db_connection
+from app.service.base_service import BaseService
+from app.service.ai_service import AIService  # Import AIService
 
 
-class TicketService:
+
+class TicketService(BaseService):
     @staticmethod
     def create_ticket(description, status, userid, itemid):
         """
-        Creates a new ticket in the database.
+        Creates a new ticket in the database and detects possible issues using AIService.
         """
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor()
 
             # Validate itemID
@@ -17,14 +20,18 @@ class TicketService:
             if cursor.fetchone() is None:
                 return {"error": "Invalid itemID. Item does not exist."}, 400
 
+            # AI-powered issue detection
+            detected_issues = AIService.get_estimate(itemid, description)
+
             query = """
-                INSERT INTO ticket (description, date, status, userid, itemid)
-                VALUES (%s, NOW(), %s, %s, %s)
-            """
-            cursor.execute(query, (description, status, userid, itemid))
+                    INSERT INTO ticket (description, date, status, userid, itemid, detected_issues)
+                    VALUES (%s, NOW(), %s, %s, %s, %s)
+                """
+            cursor.execute(query, (description, status, userid, itemid, detected_issues))
             conn.commit()
             ticket_id = cursor.lastrowid
-            return {"message": "Ticket created successfully!", "ticketid": ticket_id}, 201
+            return {"message": "Ticket created successfully!", "ticketid": ticket_id,
+                    "detected_issues": detected_issues}, 201
         except Exception as e:
             return {"error": f"An error occurred: {e}"}, 500
         finally:
@@ -34,12 +41,12 @@ class TicketService:
     @staticmethod
     def get_all_tickets():
         """Retrieve all tickets for admin and sort by date."""
-        conn = get_db_connection()
+        conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor(dictionary=True)
 
         query = """
         SELECT ticket.ticketid, ticket.description, ticket.date, ticket.status, 
-               user.email AS user_email, ticket.itemid
+               ticket.detected_issues, user.email AS user_email, ticket.itemid, ticket.userid AS userid
         FROM ticket
         JOIN user ON ticket.userid = user.id
         """
@@ -54,7 +61,7 @@ class TicketService:
 
     @staticmethod
     def update_ticket_status(ticket_id, new_status):
-        conn = get_db_connection()
+        conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor()
         query = "UPDATE ticket SET status = %s WHERE ticketid = %s"
         cursor.execute(query, (new_status, ticket_id))
@@ -66,14 +73,15 @@ class TicketService:
     @staticmethod
     def add_manufacturer(name):
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor()
-            query = "INSERT INTO manufacturers (name) VALUES (%s)"
+            query = "INSERT INTO manufacturers (manufacturername) VALUES (%s)"
             cursor.execute(query, (name,))
             conn.commit()
+            manufacturer_id = cursor.lastrowid  # ✅ Get the new manufacturer ID
             cursor.close()
             conn.close()
-            return {"message": "Manufacturer added successfully"}, 201
+            return manufacturer_id, {"message": "Manufacturer added successfully"}, 201
         except Exception as e:
             return {"error": str(e)}, 500
 
@@ -83,7 +91,7 @@ class TicketService:
         Retrieve all tickets for a specific user and sort them by date (newest first).
         """
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor(dictionary=True)
             query = "SELECT * FROM ticket WHERE userid = %s"
             cursor.execute(query, (userid,))
@@ -103,7 +111,7 @@ class TicketService:
         Fetch a single ticket by ID and ensure it belongs to the logged-in user.
         """
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor(dictionary=True)
             query = "SELECT * FROM ticket WHERE ticketid = %s AND userid = %s"
             cursor.execute(query, (ticket_id, userid))
@@ -118,7 +126,7 @@ class TicketService:
     @staticmethod
     def delete_ticket(ticket_id, userid):
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor()
             query = "DELETE FROM ticket WHERE ticketid = %s AND userid = %s"
             cursor.execute(query, (ticket_id, userid))
@@ -137,7 +145,7 @@ class TicketService:
     @staticmethod
     def delete_ticket_superuser(ticket_id, userid=None, is_superuser=False):
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor()
 
             if is_superuser:
@@ -162,10 +170,11 @@ class TicketService:
     @staticmethod
     def update_ticket(ticket_id, userid, description, itemid):
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor()
-            query = "UPDATE ticket SET description = %s, itemid = %s WHERE ticketid = %s AND userid = %s"
-            cursor.execute(query, (description, itemid, ticket_id, userid))
+            detected_issues = AIService.get_estimate(itemid, description) # AI-powered issue detection upon update
+            query = "UPDATE ticket SET description = %s, itemid = %s, detected_issues = %s WHERE ticketid = %s AND userid = %s"
+            cursor.execute(query, (description, itemid, detected_issues,ticket_id, userid))
             conn.commit()
 
             if cursor.rowcount > 0:
@@ -181,15 +190,17 @@ class TicketService:
     @staticmethod
     def get_all_manufacturers():
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT * FROM manufacturer"
+            query = "SELECT * FROM manufacturers"
             cursor.execute(query)
             manufacturers = cursor.fetchall()
             cursor.close()
             conn.close()
+            print("Manufacturers Retrieved:", manufacturers)  # Debugging
             return manufacturers
         except Exception as e:
+            print("Error fetching manufacturers:", e)  # Debugging
             return []
 
     @staticmethod
@@ -226,3 +237,57 @@ class TicketService:
         sorted_tickets.extend(right[j:])
 
         return sorted_tickets
+
+
+
+#new stuff
+    @staticmethod
+    def get_tickets_sorted_by_userid():
+        """Retrieve all tickets with correct manufacturer and item details, sorted by userid for binary search."""
+        conn = BaseService.get_db_connection()  #inheritance
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+        SELECT 
+            ticket.ticketid, 
+            ticket.description, 
+            ticket.date, 
+            ticket.status, 
+            ticket.userid, 
+            ticket.itemid, 
+            item.model AS device_name, 
+            manufacturers.manufacturername, 
+            user.email AS user_email
+        FROM ticket
+        JOIN user ON ticket.userid = user.id
+        JOIN item ON ticket.itemid = item.itemid
+        JOIN manufacturers ON item.manufacturerid = manufacturers.manufacturerid
+        """
+
+        cursor.execute(query)
+        tickets = cursor.fetchall()
+
+        sorted_tickets = sorted(tickets, key=lambda x: x["userid"])  # Sort by userid
+        cursor.close()
+        conn.close()
+
+        return sorted_tickets
+
+    @staticmethod
+    def get_ticket_by_id_admin(ticket_id):
+        """
+        Fetch a ticket by ID without checking the user.
+        This is used by superusers/admins to update ticket statuses.
+        """
+        try:
+            conn = BaseService.get_db_connection()  #inheritance
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT * FROM ticket WHERE ticketid = %s"
+            cursor.execute(query, (ticket_id,))
+            ticket = cursor.fetchone()
+            return ticket
+        except Exception as e:
+            return None
+        finally:
+            cursor.close()
+            conn.close()

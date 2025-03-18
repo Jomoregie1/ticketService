@@ -33,6 +33,9 @@
     </div>
 
     <button type="submit" class="btn btn-primary"> {{ form.submit.label }}</button>
+    <a href="{{ url_for('login.forgot_password') }}">
+        <button type="button">Forgot Password?</button>
+    </a>
 </form>
 <a href="http://127.0.0.1:5000/signup">
                     <i class="bx bx-log-out"></i>

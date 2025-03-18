@@ -8,15 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css">
 </head>
 <body>
+
+
+
     <div class="container">
         <h1>Manage Tickets</h1>
+        <input type="text" id="searchUserId" placeholder="Enter User ID">
+<button onclick="searchTickets()">Search</button>
+<p id="searchError" style="color:red; display:none;">No tickets found for this user ID.</p>
+
+
 
         {% if tickets %}
             <table class="ticket-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Device</th>
+                        <th>Manufacturer</th>
                         <th>Description</th>
+                        <th>Detected Issues</th>
                         <th>Date Created</th>
                         <th>Status</th>
                         <th>User Email</th>
@@ -26,9 +36,25 @@
                 <tbody>
                     {% for ticket in tickets %}
                         <tr id="ticket-row-{{ ticket.ticketid }}">
-                            <td>{{ ticket.ticketid }}</td>
+                            <td>
+    {% for item in items %}
+        {% if item.id == ticket.itemid %}
+            {{ item.name }}
+        {% endif %}
+    {% endfor %}
+</td>
+
+<td>
+    {% for item in items %}
+        {% if item.id == ticket.itemid %}
+            {{ item.manufacturername }}
+        {% endif %}
+    {% endfor %}
+</td>
+
                             <td>{{ ticket.description }}</td>
-                            <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
+                            <td>{{ ticket.detected_issues or "No issues detected" }}</td>
+                            <td>{{ ticket.date.strftime('%Y-%m-%d') if ticket.date else 'N/A' }}</td>
                             <td>
                                 <select class="status-dropdown" data-ticketid="{{ ticket.ticketid }}">
                                     <option value="0" {% if not ticket.status %}selected{% endif %}>Pending</option>
@@ -68,13 +94,35 @@
             </a>
             <span class="tooltip">Logout</span>
         </li>
+
         <li>
-            <a href="{{ url_for('home.home') }}">
-                <i class="bx bx-home-alt-2"></i>
-                <span class="nav-item">Home Page</span>
+            <a href="http://127.0.0.1:5000/admin/users">
+                <i class="bx bx-user"></i>
+                <span class="nav-item">Users List</span>
             </a>
-            <span class="tooltip">Home Page</span>
+            <span class="tooltip">User List</span>
         </li>
+        <li>
+            <a href="http://127.0.0.1:5000/admin/manufacturer/add">
+                <i class="bx bx-building"></i>
+                <span class="nav-item">Add Manufacturers</span>
+            </a>
+            <span class="tooltip">Add Manufacturers</span>
+        </li>
+        <li>
+                <a href="http://127.0.0.1:5000/estimate">
+                    <i class="bx bx-money-withdraw"></i>
+                    <span class="nav-item">Estimate Price</span>
+                </a>
+                <span class="tooltip">Estimate Price</span>
+            </li>
+        <li>
+                <a href="http://127.0.0.1:5000/admin/item/add">
+                    <i class="bx bx-laptop"></i>
+                    <span class="nav-item">Add Item</span>
+                </a>
+                <span class="tooltip">Add Item</span>
+            </li>
     </ul>
 </div>
 
@@ -124,6 +172,132 @@
     sidebarBtn.onclick = function () {
         sidebar.classList.toggle('active');
     };
+
+
+
+
+
+
+
+function binarySearchTickets(tickets, userId) {
+        let left = 0;
+        let right = tickets.length - 1;
+        let result = [];
+
+        while (left <= right) {
+            let mid = Math.floor((left + right) / 2);
+
+            if (tickets[mid].userid == userId) {
+                result.push(tickets[mid]);
+
+                // Expand search in both directions
+                let i = mid - 1;
+                while (i >= 0 && tickets[i].userid == userId) {
+                    result.push(tickets[i]);
+                    i--;
+                }
+
+                let j = mid + 1;
+                while (j < tickets.length && tickets[j].userid == userId) {
+                    result.push(tickets[j]);
+                    j++;
+                }
+                return result;
+            }
+
+            if (tickets[mid].userid < userId) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return [];
+    }
+
+    function searchTickets() {
+    let userId = parseInt(document.getElementById("searchUserId").value);
+    let sortedTickets = JSON.parse('{{ sorted_tickets|tojson|safe }}'); // Use sorted tickets
+
+    if (isNaN(userId)) {
+        alert("Please enter a valid User ID.");
+        return;
+    }
+
+    let foundTickets = binarySearchTickets(sortedTickets, userId);
+
+    if (foundTickets.length > 0) {
+        document.getElementById("searchError").style.display = "none";
+        let tbody = document.querySelector(".ticket-table tbody");
+        tbody.innerHTML = ""; // Clear existing rows
+
+        foundTickets.forEach(ticket => {
+            let row = `<tr id="ticket-row-${ticket.ticketid}">
+                <td>${ticket.device_name ? ticket.device_name : 'Unknown Device'}</td>
+                <td>${ticket.manufacturername ? ticket.manufacturername : 'Unknown Manufacturer'}</td>
+                <td>${ticket.description}</td>
+                <td>${new Date(ticket.date).toDateString()}</td>
+                <td>
+                    <select class="status-dropdown" data-ticketid="${ticket.ticketid}">
+                        <option value="0" ${ticket.status == 0 ? 'selected' : ''}>Pending</option>
+                        <option value="1" ${ticket.status == 1 ? 'selected' : ''}>Completed</option>
+                    </select>
+                </td>
+                <td>${ticket.user_email}</td>
+                <td>
+                    <button class="btn delete-btn" data-ticketid="${ticket.ticketid}">
+                        <i class='bx bx-trash'></i> Delete
+                    </button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+
+        // Reattach event listeners for dropdowns and delete buttons
+        attachEventListeners();
+    } else {
+        document.getElementById("searchError").style.display = "block";
+    }
+}
+
+function attachEventListeners() {
+    $(".status-dropdown").change(function () {
+        let ticketId = $(this).data("ticketid");
+        let newStatus = $(this).val();
+
+        $.ajax({
+            url: "/admin/ticket/update/status/" + ticketId,
+            type: "POST",
+            data: JSON.stringify({ status: newStatus }),
+            contentType: "application/json",
+            success: function (response) {
+                alert("Ticket status updated successfully!");
+            },
+            error: function (xhr) {
+                alert("Error updating ticket status.");
+            }
+        });
+    });
+
+    $(".delete-btn").click(function () {
+        let ticketId = $(this).data("ticketid");
+
+        if (confirm("Are you sure you want to delete this ticket?")) {
+            $.ajax({
+                url: "/admin/ticket/delete/" + ticketId,
+                type: "POST",
+                success: function (response) {
+                    alert("Ticket deleted successfully!");
+                    $("#ticket-row-" + ticketId).remove();
+                },
+                error: function (xhr) {
+                    alert("Error deleting ticket.");
+                }
+            });
+        }
+    });
+}
     </script>
 </body>
 </html>
+
+

@@ -19,8 +19,11 @@
     <table>
         <thead>
         <tr>
-            <th>ID</th>
+
+            <th>Item</th>
+            <th>Manufacturer</th>
             <th>Description</th>
+            <th>Detected Issues</th>
             <th>Date Created</th>
             <th>Status</th>
             <th>Actions</th>
@@ -29,9 +32,25 @@
         <tbody>
         {% for ticket in tickets %}
         <tr id="ticket-row-{{ ticket.ticketid }}">
-            <td>{{ ticket.ticketid }}</td>
+            <td>
+    {% for item in items %}
+        {% if item.id == ticket.itemid %}
+            {{ item.name }}
+        {% endif %}
+    {% endfor %}
+</td>
+
+<td>
+    {% for item in items %}
+        {% if item.id == ticket.itemid %}
+            {{ item.manufacturername }}
+        {% endif %}
+    {% endfor %}
+</td>
+
             <td>{{ ticket.description }}</td>
-            <td>{{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') if ticket.date else 'N/A' }}</td>
+            <td>{{ ticket.detected_issues or "No issues detected" }}</td>
+            <td>{{ ticket.date.strftime('%Y-%m-%d') if ticket.date else 'N/A' }}</td>
             <td>{{ 'Completed' if ticket.status else 'Pending' }}</td>
             {% if is_superuser %}
             <td>{{ ticket.user_email }}</td>
@@ -94,33 +113,49 @@
 </div>
 
 <div class="sidebar">
-    <div class="top">
-        <div class="logo">
-            <i class="bx bx-wrench"></i>
-            <span>Repair Shop</span>
+        <div class="top">
+            <div class="logo">
+                <i class="bx bx-wrench"></i>
+                <span>Repair Shop</span>
+            </div>
+            <i class="bx bx-menu" id="sidebarBtn"></i>
         </div>
-        <i class="bx bx-menu" id="sidebarBtn"></i>
+        <div class="user">
+            <p class="bold">Email</p>
+        </div>
+        <ul>
+            <li>
+                <a href="http://127.0.0.1:5000/login/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/home/">
+                    <i class="bx bx-home-alt-2"></i>
+                    <span class="nav-item">Home Page</span>
+                </a>
+                <span class="tooltip">Home Page</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/ticket/create">
+                    <i class="bx bx-edit"></i>
+                    <span class="nav-item">Create tickets</span>
+                </a>
+                <span class="tooltip">Create</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/estimate">
+                    <i class="bx bx-money-withdraw"></i>
+                    <span class="nav-item">Estimate Price</span>
+                </a>
+                <span class="tooltip">Estimate Price</span>
+            </li>
+
+
+        </ul>
     </div>
-    <div class="user">
-        <p class="bold">Email</p>
-    </div>
-    <ul>
-        <li>
-            <a href="{{ url_for('login.login') }}">
-                <i class="bx bx-log-out"></i>
-                <span class="nav-item">Logout</span>
-            </a>
-            <span class="tooltip">Logout</span>
-        </li>
-        <li>
-            <a href="{{ url_for('home.home') }}">
-                <i class="bx bx-home-alt-2"></i>
-                <span class="nav-item">Home Page</span>
-            </a>
-            <span class="tooltip">Home Page</span>
-        </li>
-    </ul>
-</div>
 
 <script>
     $(document).ready(function () {

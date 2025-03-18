@@ -1,9 +1,13 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models.userModel import User
 from config import get_db_connection
+from app.models.userModel import User, ks5_math_hash
+from app.service.base_service import BaseService
+from flask import current_app
+import jwt
+import datetime
 
 
-class UserService:
+class UserService(BaseService):
     @staticmethod
     def create_user(email, password):
         """
@@ -13,6 +17,7 @@ class UserService:
             # Check if the email is already in use
             if User.find_by_email(email):
                 return {"error": "Email is already in use"}, 400
+
 
             # Create the new user
             User.create(email, password)
@@ -43,7 +48,7 @@ class UserService:
     @staticmethod
     def delete_user(user_id):
         """Delete a user from the database."""
-        conn = get_db_connection()
+        conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor()
 
         # Ensure the user exists before deletion
@@ -63,7 +68,7 @@ class UserService:
     @staticmethod
     def update_user(user_id, data):
         """Update user information (email, password, or superuser status)."""
-        conn = get_db_connection()
+        conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor()
 
         cursor.execute("SELECT id FROM user WHERE id = %s", (user_id,))
@@ -83,7 +88,7 @@ class UserService:
             update_values.append(email)
 
         if password:
-            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            hashed_password = ks5_math_hash(password)  # ✅ Use KS5 Hashing
             update_fields.append("password = %s")
             update_values.append(hashed_password)
 
@@ -106,7 +111,7 @@ class UserService:
     @staticmethod
     def get_all_users():
         try:
-            conn = get_db_connection()
+            conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor(dictionary=True)
             query = "SELECT * FROM user WHERE is_superuser = FALSE"
             cursor.execute(query)
@@ -119,7 +124,7 @@ class UserService:
 
     def get_user_by_id(user_id):
         """Retrieve a user by their ID."""
-        conn = get_db_connection()
+        conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor(dictionary=True)
 
         query = "SELECT id, email, password, is_superuser FROM user WHERE id = %s"
@@ -135,5 +140,61 @@ class UserService:
                 "email": user["email"],
                 "password": user["password"],
                 "is_superuser": user["is_superuser"],  # ✅ Include superuser status
+            }
+        return None
+
+    #forgotten password stuff here
+
+    @staticmethod
+    def generate_reset_token(email):
+        """Generate a secure JWT reset token for password recovery."""
+        expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token valid for 1 hour
+        payload = {"email": email, "exp": expiration}
+        token = jwt.encode(payload, current_app.secret_key, algorithm="HS256")
+        return token
+
+    @staticmethod
+    def verify_reset_token(token):
+        """Verify the password reset token."""
+        try:
+            payload = jwt.decode(token, current_app.secret_key, algorithms=["HS256"])
+            return payload["email"]
+        except jwt.ExpiredSignatureError:
+            return None  # Token expired
+        except jwt.InvalidTokenError:
+            return None  # Invalid token
+
+    @staticmethod
+    def update_password(email, new_password):
+        """Update the user’s password with a securely hashed version."""
+        hashed_password = ks5_math_hash(new_password)  # Use KS5 hashing
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = "UPDATE user SET password = %s WHERE email = %s"
+        cursor.execute(query, (hashed_password, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"message": "Password updated successfully!"}, 200
+
+    @staticmethod
+    def get_user_by_email(email):
+        """Retrieve a user by their email address."""
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = "SELECT * FROM user WHERE email = %s"
+        cursor.execute(query, (email,))
+        user = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if user:
+            return {
+                "id": user["id"],
+                "email": user["email"],
+                "password": user["password"],
+                "is_superuser": bool(user["is_superuser"])
             }
         return None

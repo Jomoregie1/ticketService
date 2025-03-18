@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Admin-Item-Style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css">
+</head>
+<body>
+<form id="addItemForm">
+    <label for="manufacturerid">Manufacturer:</label>
+    <select id="manufacturerid" required>
+        {% for manufacturer in manufacturers %}
+        <option value="{{ manufacturer.manufacturerid }}">{{ manufacturer.manufacturername }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="model">Model:</label>
+    <input type="text" id="model" required>
+
+    <label for="typeid">Type:</label>
+    <select id="typeid" required>
+        {% for type in types %}
+        <option value="{{ type.typeid }}">{{ type.typename }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="market_price">Market Price:</label>
+    <input type="number" step="0.01" id="market_price" required>
+
+    <button type="submit">Add Item</button>
+</form>
+
+<div class="sidebar">
+        <div class="top">
+            <div class="logo">
+                <i class="bx bx-wrench"></i>
+                <span>Repair Shop</span>
+            </div>
+            <i class="bx bx-menu" id="sidebarBtn"></i>
+        </div>
+        <div class="user">
+            <p class="bold">Email</p>
+        </div>
+        <ul>
+            <li>
+                <a href="http://127.0.0.1:5000/login/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/admin/tickets">
+                    <i class="bx bx-wallet"></i>
+                    <span class="nav-item">Ticket List</span>
+                </a>
+                <span class="tooltip">Tickets</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/admin/manufacturer/add">
+                    <i class="bx bx-building"></i>
+                    <span class="nav-item">Manufacturers list</span>
+                </a>
+                <span class="tooltip">Manufacturers</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/estimate">
+                    <i class="bx bx-money-withdraw"></i>
+                    <span class="nav-item">Estimate Price</span>
+                </a>
+                <span class="tooltip">Estimate Price</span>
+            </li>
+            <li>
+                <a href="http://127.0.0.1:5000/admin/users">
+                    <i class="bx bx-user"></i>
+                    <span class="nav-item">User List</span>
+                </a>
+                <span class="tooltip">User List</span>
+            </li>
+
+
+        </ul>
+    </div>
+
+</body>
+
+
+<script>
+
+    let sidebarBtn = document.querySelector('#sidebarBtn');
+    let sidebar = document.querySelector('.sidebar');
+
+    sidebarBtn.onclick = function () {
+        sidebar.classList.toggle('active');
+    };
+
+     document.getElementById("addItemForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        let formData = {
+            manufacturerid: document.getElementById("manufacturerid").value,
+            model: document.getElementById("model").value,
+            typeid: document.getElementById("typeid").value,
+            market_price: document.getElementById("market_price").value
+        };
+
+        fetch("{{ url_for('admin.add_item') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || data.error);
+            if (data.itemid) {
+                window.location.reload(); // Refresh on success
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
+</html>
