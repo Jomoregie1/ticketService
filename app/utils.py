@@ -21,19 +21,19 @@ def superuser_required(f):
 
 #new email thing
 def send_ticket_completion_email(user_email, ticket_id):
-    # ✅ Fetch ticket details
+    #  ticket details
     ticket = TicketService.get_ticket_by_id_admin(ticket_id)
 
     if not ticket:
-        print(f"❌ ERROR: Ticket {ticket_id} not found, cannot send email.")
+        print(f" ERROR: Ticket {ticket_id} not found, cannot send email.")
         return
 
-    # ✅ Fetch item details
+    # item details
     item = ItemService.get_item_by_id(ticket["itemid"])
 
     item_name = item["name"] if item else "Unknown Item"
 
-    # ✅ Updated email body
+
     subject = "Your Ticket Has Been Resolved"
     body = (
         f"Hello,\n\n"
@@ -46,13 +46,13 @@ def send_ticket_completion_email(user_email, ticket_id):
 
     try:
         mail.send(msg)
-        print(f"✅ EMAIL SENT: Successfully sent email to {user_email} for ticket {ticket_id} ({item_name})")
+        print(f" EMAIL SENT: Successfully sent email to {user_email} for ticket {ticket_id} ({item_name})")
     except Exception as e:
-        print(f"❌ EMAIL ERROR: Failed to send email - {e}")
+        print(f"EMAIL ERROR: Failed to send email - {e}")
 
 
 def send_password_reset_email(user_email, reset_token):
-    """Send a password reset email with a secure reset link."""
+
     reset_url = url_for("login.reset_password", token=reset_token, _external=True)
 
     subject = "Password Reset Request"
@@ -68,6 +68,6 @@ def send_password_reset_email(user_email, reset_token):
 
     try:
         mail.send(msg)
-        print(f"✅ PASSWORD RESET EMAIL SENT to {user_email}")
+        print(f" PASSWORD RESET EMAIL SENT to {user_email}")
     except Exception as e:
-        print(f"❌ EMAIL ERROR: Failed to send password reset email - {e}")
+        print(f" EMAIL ERROR: Failed to send password reset email - {e}")

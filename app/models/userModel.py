@@ -4,18 +4,13 @@ from flask_login import UserMixin
 from config import get_db_connection
 import hashlib
 
-PRIME = 104729  # Large prime number
+PRIME = 104729
 
 def ks5_math_hash(password: str) -> str:
-    """
-    Custom KS5 Maths-based password hashing.
-    - Converts password to ASCII values.
-    - Uses modular exponentiation with a prime number.
-    - Hashes the result with SHA-256 for additional security.
-    """
-    numeric_value = sum(ord(char) ** 2 for char in password) % PRIME  # Modular arithmetic
-    hashed_value = hashlib.sha256(str(numeric_value).encode()).hexdigest()  # Secure hashing
-    print(f"🔍 KS5 Hashing - Input: {password}, Numeric: {numeric_value}, Hash: {hashed_value}")  # ✅ Debugging
+    #use of ks5 maths and a normal hashing method to unsure complexity whilst using advance maths for extra marks
+    numeric_value = sum(ord(char) ** 2 for char in password) % PRIME
+    hashed_value = hashlib.sha256(str(numeric_value).encode()).hexdigest()
+    print(f"🔍 KS5 Hashing - Input: {password}, Numeric: {numeric_value}, Hash: {hashed_value}")  #  Debugging
     return hashed_value
 
 class User(UserMixin):
@@ -33,9 +28,9 @@ class User(UserMixin):
 
     @staticmethod
     def create(email, password):
-        """Create a new user and store it in the database with KS5 hashing."""
-        hashed_password = ks5_math_hash(password)  # Use custom KS5 hashing
-        print(f"✅ Storing hashed password: {hashed_password}") # Debugging
+
+        hashed_password = ks5_math_hash(password)
+        print(f"✅ Storing hashed password: {hashed_password}") # Debugging stuff
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "INSERT INTO user (email, password) VALUES (%s, %s)"
@@ -45,8 +40,8 @@ class User(UserMixin):
         conn.close()
 
     @staticmethod
-    def find_by_email(email):
-        """Retrieve a user by their email."""
+    def find_by_email(email):              #gets all details of a user with set email
+
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         query = "SELECT * FROM user WHERE email = %s"
@@ -59,8 +54,8 @@ class User(UserMixin):
         return None
 
     @staticmethod
-    def find_by_id(user_id):
-        """Retrieve a user by their ID."""
+    def find_by_id(user_id):                      #gets users details by the ID matched from a ticket
+
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         query = "SELECT * FROM user WHERE id = %s"
@@ -73,8 +68,8 @@ class User(UserMixin):
         return None
 
     def check_password(self, password):
-        """Verify the password using KS5 Maths hashing."""
-        hashed_attempt = ks5_math_hash(password)  # ✅ Hash the input only once
+
+        hashed_attempt = ks5_math_hash(password)
         print(f"🔍 Expected Hash (DB): {self.password}")  # Debugging
         print(f"🔍 Attempted Hash (Input): {hashed_attempt}")  # Debugging
-        return hashed_attempt == self.password  # ✅ Compare directly
+        return hashed_attempt == self.password

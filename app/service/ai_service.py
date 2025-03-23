@@ -33,7 +33,7 @@ class AIService:
         "speaker issue": [
             "no sound", "speaker not working", "low volume", "distorted audio", "crackling sound", "mic issue",
             "speaker problem", "sound muffled", "audio cutting out", "earpiece problem", "one speaker not working",
-            "speaker buzzing", "phone call volume too low", "headphone jack issue", "speaker damage"
+            "speaker buzzing", "phone call volume too low", "headphone jack issue", "speaker damage", "cannot hear"
         ],
         "microphone issue": [
             "broken mic", "mic not working", "callers can't hear me", "voice recording issue", "muffled mic sound",
@@ -133,7 +133,7 @@ class AIService:
         ]
     }
 
-    # Base range of prices for repairs
+
     BASE_PRICE_MAP = {
         "screen damage": (150, 400),
         "battery issue": (60, 200),
@@ -161,60 +161,71 @@ class AIService:
         "sim tray issues": (50, 160),
     }
 
+    @staticmethod            #use of binary search for extra marks due to increasedd effiecney of o(logn)
+    def binary_search(arr, target):
+        left, right = 0, len(arr) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return True
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return False
+
     @staticmethod
     def get_estimate(item_id, description):
-        """
-        Estimates the repair cost by identifying multiple issues using fuzzy matching in the description and a bunch of
-        base prices that cover a large range of synonyms.
-        A stack is used to track detected issues in the order they are found to ensure device issues are not logged twice.
-        It sums up their estimated prices based on the item’s market price stored in DB.
-        The total estimated price cannot exceed the market price of the device. (changed to 85% for now to keep
-        realistic).
-        The minimum estimated price cannot exceed 70% of the market price.
-        """
-        description_lower = description.lower()
-        matched_issues = []  # Stack implementation (list used as a stack)
 
-        # Check for multiple issues using fuzzy matching and synonynms
-        for issue, synonyms in AIService.ISSUE_PRICE_MAP.items():
-            potential_matches = [issue] + synonyms  # Combine base issue and synonyms
+        description_lower = description.lower()
+        matched_issues = []  # Stack implementation for more marks
+
+
+        sorted_issues = sorted(AIService.ISSUE_PRICE_MAP.keys())
+
+        # Binary search for matching issues
+        for issue in sorted_issues:
+            synonyms = AIService.ISSUE_PRICE_MAP[issue]
+            potential_matches = sorted([issue] + synonyms)
+
+
             for keyword in potential_matches:
-                if fuzz.partial_ratio(keyword, description_lower) >= AIService.FUZZY_MATCH_THRESHOLD:
-                    matched_issues.append(issue)  # Pushes it onto the stack
-                    break  # Stops checking synonyms when a base issue is found
+                if AIService.binary_search(potential_matches, keyword) and fuzz.partial_ratio(keyword,
+                                                                                              description_lower) >= AIService.FUZZY_MATCH_THRESHOLD:
+                    matched_issues.append(issue)
+                    break  # Stops checking for thesynonyms
 
         if not matched_issues:
             return "Could not determine issue, please provide more details or contact a store employee."
 
-        # Store a copy of detected issues to give to the user before popping the stack
+        # Store a copy of detected issues to give to the user before popping the stack because of he ticekt pages and sql
         detected_issues_list = matched_issues.copy()
 
-        # Gets the market price of the item
         item_data = ItemService.get_item_by_id(item_id)
         if not item_data:
             return "Error retrieving item details."
 
         market_price = float(item_data["market_price"])
-        price_multiplier = market_price / 350  # Normalize using a base price of 300 pounds
 
-        # Initialize total min and max estimates
+
+        price_multiplier = 0.5 + (market_price / 2000)
+
         total_min_price = 0
         total_max_price = 0
 
-        # Process detected issues using a stack
         while matched_issues:
-            issue = matched_issues.pop()  # Pop from stack (LIFO processing)
-            base_price_min, base_price_max = AIService.BASE_PRICE_MAP.get(issue,
-                                                                          (50, 200))  # Default range if not found (need to change)
+            issue = matched_issues.pop()
+            base_price_min, base_price_max = AIService.BASE_PRICE_MAP.get(issue, (50, 200))
+
+
             total_min_price += base_price_min * price_multiplier
             total_max_price += base_price_max * price_multiplier
 
-        # Define lower and upper bounds
-        max_allowable_price = market_price * 0.85  # Max repair cost cannot exceed device price (85% to make realistic)
-        min_allowable_price = market_price * 0.6 # Min repair cost should not exceed 60% of market price
+        # pricing caps
+        max_allowable_price = market_price * 0.8
+        min_allowable_price = max(market_price * 0.15, 50)
 
-        # Apply capping by the minimum capping at min_allowable_price and maximum capping at max_allowable_price
-        estimated_min = round(min(total_min_price, min_allowable_price), 2)
+        estimated_min = round(min(total_min_price, max_allowable_price), 2)
         estimated_max = round(min(total_max_price, max_allowable_price), 2)
 
         return f"£{estimated_min} - £{estimated_max} (Detected potential issues: {', '.join(detected_issues_list)})"

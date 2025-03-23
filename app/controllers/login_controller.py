@@ -43,7 +43,7 @@ def login():
 
 @login_bp.route("/forgot-password", methods=['GET', 'POST'])
 def forgot_password():
-    """Handles password reset requests."""
+
     if request.method == "POST":
         email = request.form.get("email")
         user = UserService.get_user_by_email(email)
@@ -59,7 +59,7 @@ def forgot_password():
 
 @login_bp.route("/reset-password/<token>", methods=['GET', 'POST'])
 def reset_password(token):
-    """Handles the password reset after token verification."""
+
     email = UserService.verify_reset_token(token)
 
     if not email:
