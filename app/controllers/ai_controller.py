@@ -17,7 +17,7 @@ def estimate_page():
         item_id = request.form.get("itemid")
         description = request.form.get("description")
 
-        if not item_id or not description:
+        if not item_id or not description:  #makes sure an item is entered
             error = "Please select an item and describe the issue."
         else:
             estimated_price = AIService.get_estimate(item_id, description)

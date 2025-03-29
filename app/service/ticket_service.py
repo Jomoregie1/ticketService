@@ -242,7 +242,7 @@ class TicketService(BaseService):
 
 
 
-#new shit delete
+
 
     @staticmethod
     def get_tickets_sorted_by_userid():
@@ -294,3 +294,15 @@ class TicketService(BaseService):
         finally:
             cursor.close()
             conn.close()
+
+    @staticmethod
+    def get_ticket_count_by_user(userid):
+        #Returns how many tickets the user has using aggregate sql functions. here i used count
+        conn = BaseService.get_db_connection()
+        cursor = conn.cursor()
+        query = "SELECT COUNT(*) FROM ticket WHERE userid = %s"
+        cursor.execute(query, (userid,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result[0] if result else 0

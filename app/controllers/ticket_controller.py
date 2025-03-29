@@ -92,7 +92,9 @@ def ticket_page():
     if current_user.is_superuser:
         tickets = TicketService.get_all_tickets()
     else:
-        tickets = TicketService.get_tickets_by_user(userid)
+        tickets = TicketService.get_tickets_by_user(userid)  #gets all the tickets from user
+
+    ticket_count = TicketService.get_ticket_count_by_user(userid)  # gets the num of tickets from user
 
     try:
         items = ItemService.get_all_items()
@@ -101,4 +103,4 @@ def ticket_page():
     except Exception as e:
         items = []
 
-    return render_template("viewTicket.html", tickets=tickets, items=items)
+    return render_template("viewTicket.html", tickets=tickets, items=items, ticket_count=ticket_count)
