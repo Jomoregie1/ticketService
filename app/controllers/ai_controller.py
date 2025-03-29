@@ -3,9 +3,9 @@ from flask_login import login_required
 from app.service.ai_service import AIService
 from app.service.item_service import ItemService
 
-estimate_bp = Blueprint("estimate", __name__)
+ai_bp = Blueprint("ai", __name__)
 
-@estimate_bp.route("/", methods=["GET", "POST"])
+@ai_bp.route("/", methods=["GET", "POST"])
 @login_required
 def estimate_page():
     items = ItemService.get_all_items()  # Fetch all items

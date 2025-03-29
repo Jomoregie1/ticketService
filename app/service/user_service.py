@@ -1,27 +1,27 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import get_db_connection
 from app.models.userModel import User, ks5_math_hash
-from app.service.base_service import BaseService       #use of inheritance for more marks
+from app.service.base_service import BaseService
 from flask import current_app
 import jwt
 import datetime
 
-
+#class for handling all user related operations
 class UserService(BaseService):
     @staticmethod
     def create_user(email, password):              #creation of a user
 
         try:
 
-            if User.find_by_email(email):
+            if User.find_by_email(email):          #if its in the DB already
                 return {"error": "Email is already in use"}, 400
 
 
-            # Creates the new user
+            # Creates the new user in DB
             User.create(email, password)
             return {"message": "User registered successfully!"}, 201
 
-        except Exception as e:
+        except Exception as e:           #exception handling
             return {"error": f"An error occurred while creating the user: {e}"}, 500
 
     @staticmethod
@@ -29,7 +29,7 @@ class UserService(BaseService):
 
         try:
 
-            user = User.find_by_email(email)
+            user = User.find_by_email(email) #gets them by email
 
             # Verify the password
             if not user or not user.check_password(password):
@@ -37,7 +37,7 @@ class UserService(BaseService):
 
             return user
 
-        except Exception as e:
+        except Exception as e: #exception handling
             raise Exception(f"An error occurred while checking credentials: {e}")
 
 
@@ -47,7 +47,7 @@ class UserService(BaseService):
         conn = BaseService.get_db_connection()
         cursor = conn.cursor()
 
-
+        # Check if the user exists
         cursor.execute("SELECT id FROM user WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         if not user:
@@ -72,14 +72,14 @@ class UserService(BaseService):
         if not user:
             return {"error": "User not found"}, 404
 
-        email = data.get("email")
+        email = data.get("email")         #extracts the update fields from data dictoinary
         password = data.get("password")
         is_superuser = data.get("is_superuser")
 
         update_fields = []
         update_values = []
 
-        if email:
+        if email:                    #dynamic sql statements for updates
             update_fields.append("email = %s")
             update_values.append(email)
 
@@ -95,7 +95,7 @@ class UserService(BaseService):
         if not update_fields:
             return {"error": "No valid fields to update"}, 400
 
-        update_values.append(user_id)
+        update_values.append(user_id)                  #final sql statment with dynamic fields
         query = f"UPDATE user SET {', '.join(update_fields)} WHERE id = %s"
         cursor.execute(query, tuple(update_values))
         conn.commit()
@@ -105,7 +105,7 @@ class UserService(BaseService):
         return {"message": "User updated successfully!"}, 200
 
     @staticmethod
-    def get_all_users():         #gets all users for displayment on the admin table user page
+    def get_all_users():         #gets all users for displayment on the admin table user page (normal users only)
         try:
             conn = BaseService.get_db_connection()  #inheritance
             cursor = conn.cursor(dictionary=True)
@@ -118,7 +118,7 @@ class UserService(BaseService):
         except Exception as e:
             return {"error": str(e)}, 500
 
-    def get_user_by_id(user_id):       #selects all from the user with a certain ID
+    def get_user_by_id(user_id):       #selects all details from the user with a certain ID
 
         conn = BaseService.get_db_connection()  #inheritance
         cursor = conn.cursor(dictionary=True)
@@ -139,18 +139,21 @@ class UserService(BaseService):
             }
         return None
 
-    #forgotten password stuff here. i have modelled it based off a friends version however i have made significat
+    #forgotten password stuff here. i have modelled it based off a friends version however i have made significant
     #changes in the way it operates and is used
 
     @staticmethod
     def generate_reset_token(email):                  #has been copied from online sources due to complexity
         expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        # Generates a secure JWT token for password reset
+        # Token is valid for 1 hour
         payload = {"email": email, "exp": expiration}
         token = jwt.encode(payload, current_app.secret_key, algorithm="HS256")
         return token
 
     @staticmethod
     def verify_reset_token(token):         #has been copied from online sources due to complexity
+        # Decodes and verifies the reset token
         try:
             payload = jwt.decode(token, current_app.secret_key, algorithms=["HS256"])
             return payload["email"]
@@ -162,7 +165,7 @@ class UserService(BaseService):
     @staticmethod
     def update_password(email, new_password):          #updates the password with the new one the user inputs
 
-        hashed_password = ks5_math_hash(new_password)
+        hashed_password = ks5_math_hash(new_password)        #uses the same hash method
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "UPDATE user SET password = %s WHERE email = %s"

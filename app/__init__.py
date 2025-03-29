@@ -61,7 +61,7 @@ def create_app():
     from app.controllers.home_controller import home_blueprint
     from app.controllers.ticket_controller import ticket_bp
     from app.controllers.admin_controller import admin_bp
-    from app.controllers.price_estimate_controller import estimate_bp
+    from app.controllers.ai_controller import ai_bp
 
     # Register blueprints
     app.register_blueprint(signup, url_prefix='/signup')
@@ -69,6 +69,6 @@ def create_app():
     app.register_blueprint(home_blueprint, url_prefix='/home')
     app.register_blueprint(ticket_bp, url_prefix="/ticket")
     app.register_blueprint(admin_bp, url_prefix="/admin")
-    app.register_blueprint(estimate_bp, url_prefix="/estimate")
+    app.register_blueprint(ai_bp, url_prefix="/estimate")
 
     return app

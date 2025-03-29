@@ -183,13 +183,13 @@ class AIService:
 
         sorted_issues = sorted(AIService.ISSUE_PRICE_MAP.keys())
 
-        # Binary search for matching issues
+        # Binary search for matching issues. first it sorts
         for issue in sorted_issues:
             synonyms = AIService.ISSUE_PRICE_MAP[issue]
             potential_matches = sorted([issue] + synonyms)
 
 
-            for keyword in potential_matches:
+            for keyword in potential_matches:        #now uses binary search
                 if AIService.binary_search(potential_matches, keyword) and fuzz.partial_ratio(keyword,
                                                                                               description_lower) >= AIService.FUZZY_MATCH_THRESHOLD:
                     matched_issues.append(issue)
@@ -198,10 +198,10 @@ class AIService:
         if not matched_issues:
             return "Could not determine issue, please provide more details or contact a store employee."
 
-        # Store a copy of detected issues to give to the user before popping the stack because of he ticekt pages and sql
+        # Store a copy of detected issues to give to the user before popping the stack because of he ticekt pages and DB
         detected_issues_list = matched_issues.copy()
 
-        item_data = ItemService.get_item_by_id(item_id)
+        item_data = ItemService.get_item_by_id(item_id)   #fetches the info needed to make pricing calc
         if not item_data:
             return "Error retrieving item details."
 
@@ -210,22 +210,22 @@ class AIService:
 
         price_multiplier = 0.5 + (market_price / 2000)
 
-        total_min_price = 0
+        total_min_price = 0         #initialise
         total_max_price = 0
 
         while matched_issues:
-            issue = matched_issues.pop()
+            issue = matched_issues.pop()       #stack usage
             base_price_min, base_price_max = AIService.BASE_PRICE_MAP.get(issue, (50, 200))
 
 
-            total_min_price += base_price_min * price_multiplier
+            total_min_price += base_price_min * price_multiplier         #sums the prices based off amount of issues
             total_max_price += base_price_max * price_multiplier
 
         # pricing caps
         max_allowable_price = market_price * 0.8
         min_allowable_price = max(market_price * 0.15, 50)
 
-        estimated_min = round(min(total_min_price, max_allowable_price), 2)
+        estimated_min = round(min(total_min_price, max_allowable_price), 2)        #gives a numeric value of 2 DP whilst withing the max values
         estimated_max = round(min(total_max_price, max_allowable_price), 2)
 
         return f"£{estimated_min} - £{estimated_max} (Detected potential issues: {', '.join(detected_issues_list)})"

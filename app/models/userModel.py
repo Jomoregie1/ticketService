@@ -7,7 +7,7 @@ import hashlib
 PRIME = 104729
 
 def ks5_math_hash(password: str) -> str:
-    #use of ks5 maths and a normal hashing method to unsure complexity whilst using advance maths for extra marks
+    #a normal hashing method to ensure complexity whilst using advance ks5 maths for extra marks + security
     numeric_value = sum(ord(char) ** 2 for char in password) % PRIME
     hashed_value = hashlib.sha256(str(numeric_value).encode()).hexdigest()
     print(f"🔍 KS5 Hashing - Input: {password}, Numeric: {numeric_value}, Hash: {hashed_value}")  #  Debugging
@@ -30,7 +30,7 @@ class User(UserMixin):
     def create(email, password):
 
         hashed_password = ks5_math_hash(password)
-        print(f"✅ Storing hashed password: {hashed_password}") # Debugging stuff
+        print(f" Storing hashed password: {hashed_password}") # Debugging stuff
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "INSERT INTO user (email, password) VALUES (%s, %s)"
