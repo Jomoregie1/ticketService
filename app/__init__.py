@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -29,6 +29,8 @@ def create_app():
     app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER", app.config["MAIL_USERNAME"])
 
     mail.init_app(app)  # ✅ Initialize Flask-Mail inside create_app()
+
+
 
 
     # Initialize Flask-Login
@@ -70,5 +72,9 @@ def create_app():
     app.register_blueprint(ticket_bp, url_prefix="/ticket")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(ai_bp, url_prefix="/estimate")
+
+    @app.route("/")
+    def default_route():
+        return redirect("/login")
 
     return app
