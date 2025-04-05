@@ -296,7 +296,7 @@ class TicketService(BaseService):
             conn.close()
 
     @staticmethod
-    def get_ticket_count_by_user(userid):
+    def get_amount_of_tickets(userid):
         #Returns how many tickets the user has using aggregate sql functions. here i used count
         conn = BaseService.get_db_connection()
         cursor = conn.cursor()

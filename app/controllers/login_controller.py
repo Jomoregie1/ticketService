@@ -38,7 +38,7 @@ def login():
     else:
         flash("Please correct the errors in the form.", "danger")
 
-    return render_template("login.html", form=form)
+    return render_template( "login.html", form=form)
 
 
 @login_bp.route("/forgot-password", methods=['GET', 'POST'])

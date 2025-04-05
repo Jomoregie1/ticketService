@@ -15,7 +15,7 @@ class AIService:
             "lines on screen", "screen flickering", "touch not working", "ghost touch", "screen unresponsive",
             "black screen", "dropped my phone", "scratched screen", "phone fell", "screen shattered",
             "dropped the phone", "touch sensitivity issue", "screen not responding", "dead pixels", "faded screen",
-            "white spots on screen", "burn-in screen", "display glitch", "touch delay"
+            "white spots on screen", "burn-in screen", "display glitch", "touch delay","screen cracked"
         ],
         "battery issue": [
             "battery replacement", "not charging", "battery dead", "battery draining fast", "phone overheating",
@@ -175,16 +175,26 @@ class AIService:
         return False
 
     @staticmethod
+    def bubsort(arr):
+        arr = list(arr)  #creates a copy here
+        n = len(arr)
+        for i in range(n):
+            for j in range(0, n - i - 1):
+                if arr[j] > arr[j + 1]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+        return arr
+
+    @staticmethod
     def get_estimate(item_id, description):
 
         description_lower = description.lower()
         matched_issues = []  # Stack implementation for more marks
 
 
-        sorted_issues = sorted(AIService.ISSUE_PRICE_MAP.keys())
+        sorted_issues = AIService.bubsort(AIService.ISSUE_PRICE_MAP.keys())   #use of bubble sort to sort the issues
 
-        # Binary search for matching issues. first it sorts
-        for issue in sorted_issues:
+        # Binary search for matching issues. uses the bub sort
+        for issue in sorted_issues:    #runs through every issue
             synonyms = AIService.ISSUE_PRICE_MAP[issue]
             potential_matches = sorted([issue] + synonyms)
 
@@ -198,7 +208,7 @@ class AIService:
         if not matched_issues:
             return "Could not determine issue, please provide more details or contact a store employee."
 
-        # Store a copy of detected issues to give to the user before popping the stack because of he ticekt pages and DB
+        # Stores a copy of detected issues to give to the user before popping the stack because of he ticekt pages and DB
         detected_issues_list = matched_issues.copy()
 
         item_data = ItemService.get_item_by_id(item_id)   #fetches the info needed to make pricing calc

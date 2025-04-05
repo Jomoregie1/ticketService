@@ -94,7 +94,7 @@ def ticket_page():
     else:
         tickets = TicketService.get_tickets_by_user(userid)  #gets all the tickets from user
 
-    ticket_count = TicketService.get_ticket_count_by_user(userid)  # gets the num of tickets from user
+    ticket_count = TicketService.get_amount_of_tickets(userid)  # gets the num of tickets from user
 
     try:
         items = ItemService.get_all_items()

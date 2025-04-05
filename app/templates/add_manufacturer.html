@@ -15,16 +15,7 @@
     <div class="container mt-5">
         <h2>Add Manufacturer</h2>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert alert-dismissible fade show">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+
 
         <!-- Manufacturer Form -->
         <form id="add-manufacturer-form">
