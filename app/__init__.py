@@ -19,7 +19,7 @@ def create_app():
     # Set secret key from environment variables
     app.secret_key = os.getenv('SECRET_KEY', 'default-secret-key')  # Default fallback
 
-    # ✅ Add Flask-Mail Configuration
+    # Add Flask-Mail Configuration
     app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")  # Default to Gmail
     app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
     app.config["MAIL_USE_TLS"] = True
@@ -36,7 +36,7 @@ def create_app():
     # Initialize Flask-Login
     login_manager = LoginManager(app)
 
-    # User loader for Flask-Login using raw SQL
+    # User loader for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
         conn = get_db_connection()
